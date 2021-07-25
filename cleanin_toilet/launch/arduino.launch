@@ -4,18 +4,18 @@
         name="arduino_x_node" 
         pkg="rosserial_python" 
         type="serial_node.py" 
-        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_55737313631351E05100-if00" 
+        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_55737313631351F06072-if00" 
         output="screen" />
-    <node ns="arduino_y" 
+    <!-- <node ns="arduino_y" 
         name="arduino_y_node" 
         pkg="rosserial_python" 
         type="serial_node.py" 
-        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_75735353438351600130-if00" 
-        output="screen" />
-    <node ns="arduino_z" 
+        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_55737313331351A09090-if00" 
+        output="screen" /> -->
+    <!-- <node ns="arduino_z" 
         name="arduino_z_node" 
         pkg="rosserial_python" 
         type="serial_node.py" 
-        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_8573432353035161B281-if00" 
-        output="screen" />
+        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_55737313631351F0D192-if00" 
+        output="screen" /> -->
 </launch>

@@ -1,7 +1,7 @@
 #include "/home/yuyaletsnote/catkin_ws/src/fcsc_toilet/cleanin_toilet/firmware/arduino.hpp"
 
 //// pin assign setting ////
-#define PI_PIN 2
+#define LMIT_PIN A5
 #define VACUUM_PIN 5
 
 //// set constant ////

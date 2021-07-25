@@ -1,4 +1,4 @@
-from. import AxisCommander
+from axis import AxisCommander
 import pandas as pd
 
 class ZAxisCommander(AxisCommander):

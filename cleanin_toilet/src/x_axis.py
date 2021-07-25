@@ -1,4 +1,4 @@
-from. import AxisCommander
+from axis import AxisCommander
 
 class XAxisCommander(AxisCommander):
 	def __init__(self, interrupt):

@@ -1,8 +1,8 @@
-from. import XAxisCommander
-from. import YAxisCommander
-from. import ZAxisCommander
-from. import EndEfectorCommander
-from. import Interrupt
+from x_axis import XAxisCommander
+from y_axis import YAxisCommander
+from z_axis import ZAxisCommander
+from ee import EndEfectorCommander
+from interrupt import Interrupt
 import pandas as pd
 import multiprocessing as mp
 import time
@@ -21,7 +21,7 @@ _scriptDF = scriptDF.copy()
 #### variable ####
 
 #### instance ####
-interrupt = Interrupt()
+interrupt = Interrupt(interrupt_csv_path)
 xaxiscom = XAxisCommander(interrupt)
 yaxiscom = YAxisCommander(interrupt)
 zaxiscom = ZAxisCommander(interrupt)
@@ -98,8 +98,8 @@ def doFunc(i):
 
 def main():
 	print('main')
-	for i in scriptDF:
-		doFunc(scriptDF[i, 'func'])
+	for i in scriptDF.index:
+		doFunc(scriptDF.at[i, 'func'])
 
 if __name__ == "__main__":
 	main()

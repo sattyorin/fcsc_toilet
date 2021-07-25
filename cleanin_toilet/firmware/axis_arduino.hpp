@@ -9,10 +9,7 @@
 #define IN_A_PIN 12
 #define IN_B_PIN 9
 #define PWM_PIN  10
-#define LIMIT_PIN 4
 #define LED_PIN 13
-#define PULSE_NUM 13.0
-#define GURE_RATIO 27.0
 
 //// set constant ////
 #define PI 3.141592
@@ -21,6 +18,8 @@
 #define Kp 1.0
 #define Ki 0.0
 #define Kd -0.1
+#define PULSE_NUM 13.0
+#define GURE_RATIO 27.0
 
 //// init variable ////
 volatile int current_enc = 0;
@@ -48,27 +47,22 @@ ros::Subscriber<std_msgs::Int32> sub_target_pwm("target_pwm", callbackTargetPWM)
 ros::Subscriber<std_msgs::String> sub_control_mode("control_mode", callbackControlMode);
 ros::Subscriber<std_msgs::Bool> sub_reset_flag("reset_flag", callbackResetFlag);
 
-void publishLimitState()
-{
-	limit_state.data = digitalRead(LIMIT_PIN);
-	pub_limit_state.publish(&limit_state);
-}
-
-void publishCurrentPos()
-{
-	current_pos.data = current_pos_mm;
-	pub_current_pos.publish(&current_pos);
-}
-
 void getState()
 {
 	current_pos_mm = (float)current_enc/PULSE_NUM/GURE_RATIO*(REFERENCE_CIRCLE_DIAMETER*PI);
 }
 
+void publishCurrentPos()
+{
+	getState();
+	current_pos.data = current_pos_mm;
+	pub_current_pos.publish(&current_pos);
+}
+
 void countEnc()
 {
 	if (digitalRead(ENC_B) == 1) current_enc --;
-	else current_enc++;
+	else current_enc ++;
 }
 
 void setPWM(int target_pwm)
@@ -133,7 +127,9 @@ void setup()
 	pinMode(IN_B_PIN, OUTPUT);
 	pinMode(PWM_PIN, OUTPUT);
 	pinMode(LED_PIN, OUTPUT);
-	pinMode(LIMIT_PIN, INPUT);
+	pinMode(PI_LIMIT_PIN, INPUT);
+	// pinMode(ENC_A, INPUT);
+	// pinMode(ENC_B, INPUT);
 
 	//// write ////
 	digitalWrite(IN_A_PIN, LOW);
@@ -154,14 +150,6 @@ void setup()
 	nh.subscribe(sub_reset_flag);
 
 	delay(1000);
-}
-
-void loop()
-{
-	publishCurrentPos();
-	publishLimitState();
-	servo();
-	nh.spinOnce();
 }
 
 #endif

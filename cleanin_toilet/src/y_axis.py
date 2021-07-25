@@ -1,4 +1,4 @@
-from. import AxisCommander
+from axis import AxisCommander
 
 class YAxisCommander(AxisCommander):
 	def __init__(self, interrupt):
