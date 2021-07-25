@@ -27,6 +27,8 @@ class EndEfectorCommander:
 	def __init__(self, theta_dynamixel_id, karcher_dynamixel_id):
 		#### variable ####
 		self.floor_switch = False
+		self.vacuum_state = False
+		self.interrupt_flag = False
 
 		#### dynamixel ####
 		self.thetadynamixelcommander = DynamixelCommander(theta_dynamixel_id)
@@ -37,6 +39,7 @@ class EndEfectorCommander:
 
 		#### Subscriber ####
 		rospy.Subscriber('/arduino_ee/floor_switch_state', Bool, self.callbackFloorSwitch)
+		rospy.Subscriber('/arduino_wall/interrupt_switch_state', Bool, self.callbackInterruptSwitch)
 
 	def setThetaPos(self, pos):
 		self.thetadynamixelcommander.selPosition(pos)
@@ -52,6 +55,30 @@ class EndEfectorCommander:
 
 	def setVacuumState(self, state):
 		self.vacuume_state_pub.publish(state)
+		self.vacuum_state = state
 
 	def callbackFloorSwitch(self, state):
 		self.floor_switch = state
+
+	def callbackInterruptSwitch(self, state):
+		self.interrupt_state = state.data
+		if self.interrupt_state == True and self.interrupt_flag:
+			self.interrupt_flag = False
+			self.doInterruptJob()
+			self.interrupt_flag = True
+
+	def doInterruptJob(self):
+		#### stop vacuum ####
+		vacuum_state = self.vacuum_state
+		self.setVacuumState(False)
+
+		#### send state ####
+		self.interrupt.getState('vacuum_state', vacuum_state)
+		self.interrupt.checkData()
+
+		#### wait press switch ####
+		while self.interrupt_state:
+			pass
+
+		#### return to the state before the interruption ####
+		self.setVacuumState(vacuum_state)

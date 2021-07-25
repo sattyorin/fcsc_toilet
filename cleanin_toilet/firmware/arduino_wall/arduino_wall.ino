@@ -19,7 +19,7 @@ void publishSwichState()
 void setup()
 {
 	//// pinMode ////
-	pinMode(SWITCH_PIN, INPUT);
+	pinMode(SWITCH_PIN, INPUT_PULLUP);
 
 	//// nh ////
 	nh.initNode();

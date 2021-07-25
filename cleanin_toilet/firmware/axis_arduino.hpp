@@ -6,10 +6,13 @@
 //// pin assign setting ////
 #define ENC_A 2
 #define ENC_B 3
-#define PID_COFF 1
 #define IN_A_PIN 12
 #define IN_B_PIN 9
 #define PWM_PIN  10
+#define LIMIT_PIN 4
+#define LED_PIN 13
+#define PULSE_NUM 13.0
+#define GURE_RATIO 27.0
 
 //// set constant ////
 #define PI 3.141592
@@ -26,18 +29,30 @@ int target_pos_mm = 0;
 int32_t last_calc_time = 0;
 float integral = 0.0;
 int last_error = 0;
-bool interrupt = False;
+String control_mode = "None";
+std_msgs::Bool limit_state;
 std_msgs::Int32 current_pos;
 
 //// define callback func ////
-void setTargetPos(const std_msgs::Int32 &pos);
+void callbackTargetPos(const std_msgs::Int32 &pos);
+void callbackTargetPWM(const std_msgs::Int32 &pwm);
+void callbackControlMode(const std_msgs::String &mode);
+void callbackResetFlag(const std_msgs::Bool &flag);
 
 //// ros /////
 ros::NodeHandle nh;
 ros::Publisher pub_current_pos("current_pos", &current_pos);
+ros::Publisher pub_limit_state("axis_limit_state", &limit_state);
 ros::Subscriber<std_msgs::Int32> sub_target_pos("target_pos", callbackTargetPos);
-ros::Subscriber<std_msgs::Bool> sub_interrupt("interrupt_switch_state", callbackInterrupt);
+ros::Subscriber<std_msgs::Int32> sub_target_pwm("target_pwm", callbackTargetPWM);
+ros::Subscriber<std_msgs::String> sub_control_mode("control_mode", callbackControlMode);
+ros::Subscriber<std_msgs::Bool> sub_reset_flag("reset_flag", callbackResetFlag);
 
+void publishLimitState()
+{
+	limit_state.data = digitalRead(LIMIT_PIN);
+	pub_limit_state.publish(&limit_state);
+}
 
 void publishCurrentPos()
 {
@@ -47,7 +62,7 @@ void publishCurrentPos()
 
 void getState()
 {
-	current_pos_mm = (float)current_enc/13.0/27.0*(REFERENCE_CIRCLE_DIAMETER*PI); // what are the numbers 13.0 and 27.0
+	current_pos_mm = (float)current_enc/PULSE_NUM/GURE_RATIO*(REFERENCE_CIRCLE_DIAMETER*PI);
 }
 
 void countEnc()
@@ -62,11 +77,11 @@ void setPWM(int target_pwm)
 	{
 		digitalWrite(IN_A_PIN, LOW);
 		digitalWrite(IN_B_PIN, HIGH);
-	} 
+	}
 	else
 	{
-		digitalWrite(IN_A_PIN, HIGH);
 		digitalWrite(IN_B_PIN, LOW);
+		digitalWrite(IN_A_PIN, HIGH);
 	}
 
 	if (target_pwm < 0) target_pwm = -target_pwm;
@@ -80,19 +95,35 @@ void callbackTargetPos(const std_msgs::Int32 &pos)
 	target_pos_mm = pos.data;
 }
 
-void callbackInterrupt(const std_msgs::Bool &state)
+void callbackTargetPWM(const std_msgs::Int32 &pwm)
 {
-	interrupt = state.data;
+	if (control_mode == "pwm")
+	{
+		setPWM(int(PID_COFF*pwm.data));
+	}
+}
+
+void callbackControlMode(const std_msgs::String &mode)
+{
+	control_mode = mode.data;
+}
+
+void callbackResetFlag(const std_msgs::Bool &flag)
+{
+	if (flag.data) current_enc = 0;
 }
 
 void servo()
 {
-	int error = target_pos_mm - current_pos_mm;
-	integral=integral+(float)error*(micros()-last_calc_time)/1000000;
-	float normalized_pid=Kp*error+Ki*integral+Kd*(error - last_error);
-	last_error = error;
-	last_calc_time = micros();
-	setPWM(int(PID_COFF*normalized_pid));
+	if (control_mode == "servo")
+	{
+		int error = target_pos_mm - current_pos_mm;
+		integral=integral+(float)error*(micros()-last_calc_time)/1000000;
+		float normalized_pid=Kp*error+Ki*integral+Kd*(error - last_error);
+		last_error = error;
+		last_calc_time = micros();
+		setPWM(int(PID_COFF*normalized_pid));
+	}
 }
 
 void setup()
@@ -101,11 +132,13 @@ void setup()
 	pinMode(IN_A_PIN, OUTPUT);
 	pinMode(IN_B_PIN, OUTPUT);
 	pinMode(PWM_PIN, OUTPUT);
-	pinMode(13, OUTPUT); // what is it?
+	pinMode(LED_PIN, OUTPUT);
+	pinMode(LIMIT_PIN, INPUT);
 
 	//// write ////
 	digitalWrite(IN_A_PIN, LOW);
 	digitalWrite(IN_B_PIN, LOW);
+	digitalWrite(LED_PIN, LOW);
 	analogWrite(PWM_PIN, 0);
 
 	//// encoder ////
@@ -114,7 +147,11 @@ void setup()
 	//// nh ////
 	nh.initNode();
 	nh.advertise(pub_current_pos);
-	nh.subscribe(sub_pos_command);
+	nh.advertise(pub_limit_state);
+	nh.subscribe(sub_target_pos);
+	nh.subscribe(sub_target_pwm);
+	nh.subscribe(sub_control_mode);
+	nh.subscribe(sub_reset_flag);
 
 	delay(1000);
 }
@@ -122,6 +159,7 @@ void setup()
 void loop()
 {
 	publishCurrentPos();
+	publishLimitState();
 	servo();
 	nh.spinOnce();
 }
