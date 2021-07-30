@@ -1,6 +1,6 @@
-from x_axis import XAxisCommander
-from y_axis import YAxisCommander
-from z_axis import ZAxisCommander
+from x_axis import XAxisCommanderInterrupt
+from y_axis import YAxisCommanderInterrupt
+from z_axis import ZAxisCommanderInterrupt
 from ee import EndEfectorCommander
 from interrupt import Interrupt
 import pandas as pd
@@ -14,7 +14,6 @@ karcher_dynamixel_id = 2
 interrupt_csv_path = '../csv/interrupt.csv'
 script_csv_path = '../csv/script.csv'
 _script_csv_path = '../csv/_script.csv'
-zero_csv_path = '../csv/zero.csv'
 scriptDF = pd.read_csv(script_csv_path)
 _scriptDF = scriptDF.copy()
 
@@ -22,9 +21,9 @@ _scriptDF = scriptDF.copy()
 
 #### instance ####
 interrupt = Interrupt(interrupt_csv_path)
-xaxiscom = XAxisCommander(interrupt)
-yaxiscom = YAxisCommander(interrupt)
-zaxiscom = ZAxisCommander(interrupt)
+xaxiscom = XAxisCommanderInterrupt(interrupt)
+yaxiscom = YAxisCommanderInterrupt(interrupt)
+zaxiscom = ZAxisCommanderInterrupt(interrupt)
 eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
 
 def zeroAdjusted():
@@ -50,17 +49,11 @@ def adjustZTheToiletSeat():
 	zaxiscom.setTargetPos(10)
 
 	#### adjust z ####
-	while not eecom.floor_switch:
-		zaxiscom.setPWM(10)
-	zaxiscom.setPWM(zaxiscom.hold_pos_pwm)
-	time.sleep(1)
-	zaxiscom.seat_pos = zaxiscom.current_pos
-
-	#### write seat z pos ####
-	with open(zero_csv_path, 'w') as f:
-		writer = csv.writer(f)
-		writer.writerow(['', 'pos'])
-		writer.writerow(['seatZ', zaxiscom.seat_pos])
+	# while not eecom.floor_switch:
+	# 	zaxiscom.setPWM(10)
+	# zaxiscom.setPWM(zaxiscom.hold_pos_pwm)
+	# time.sleep(1)
+	# zaxiscom.seat_pos = zaxiscom.current_pos
 
 def sweepTheFloor1():
 	print('[main::sweepTheFloor1]')
