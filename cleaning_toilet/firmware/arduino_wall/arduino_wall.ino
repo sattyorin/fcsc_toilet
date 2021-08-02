@@ -1,4 +1,4 @@
-#include "/home/yuyaletsnote/catkin_ws/src/fcsc_toilet/cleanin_toilet/firmware/arduino.hpp"
+#include "/home/yuyaletsnote/catkin_ws/src/fcsc_toilet/cleaning_toilet/firmware/arduino.hpp"
 
 //// pin assign setting ////
 #define SWITCH_PIN 2

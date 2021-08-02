@@ -5,7 +5,7 @@ import pandas as pd
 home_pos = 0
 hold_pos_pwm = 0
 
-zero_csv_path = '../csv/zero.csv'
+zero_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/zero.csv'
 zeroDF = pd.read_csv(zero_csv_path, index_col=0)
 
 class YAxisCommander(AxisCommander):

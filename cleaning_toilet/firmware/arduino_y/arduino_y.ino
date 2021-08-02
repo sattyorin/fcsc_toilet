@@ -2,7 +2,7 @@
 #define PI_LIMIT_PIN A5
 #define PI_THRESHOLD 150
 
-#include "/home/yuyaletsnote/catkin_ws/src/fcsc_toilet/cleanin_toilet/firmware/axis_arduino.hpp"
+#include "/home/yuyaletsnote/catkin_ws/src/fcsc_toilet/cleaning_toilet/firmware/axis_arduino.hpp"
 
 void publishLimitState()
 {
@@ -11,7 +11,7 @@ void publishLimitState()
 	pub_limit_state.publish(&limit_state);
 }
 
-#include "/home/yuyaletsnote/catkin_ws/src/fcsc_toilet/cleanin_toilet/firmware/axis_arduino_loop.hpp"
+#include "/home/yuyaletsnote/catkin_ws/src/fcsc_toilet/cleaning_toilet/firmware/axis_arduino_loop.hpp"
 
 // void loop()
 // {

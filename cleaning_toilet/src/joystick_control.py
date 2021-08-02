@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# coding:utf-8
+#!/usr/bin/env python3
 import rospy
 from sensor_msgs.msg import Joy
 from x_axis import XAxisCommander
@@ -12,7 +11,7 @@ import csv
 theta_dynamixel_id = 1
 karcher_dynamixel_id = 2
 pwm = 10
-zero_csv_path = '../csv/zero.csv'
+zero_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/zero.csv'
 
 #### variable #####
 select = 0

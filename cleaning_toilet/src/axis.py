@@ -5,7 +5,7 @@ from std_msgs.msg import String
 import time
 
 class AxisCommander:
-	def __init__(self, axis, interrupt):
+	def __init__(self, axis):
 		self.axis = axis
 		self.zero_adjusted_pwm = 100
 		self.limit_state = False
@@ -13,6 +13,8 @@ class AxisCommander:
 		self.allowable_error = 20
 		self.home_pos = 0
 		self.hold_pos_pwm = 0
+
+		rospy.init_node('axis_{}'.format(axis))
 
 		#### Publisher ####
 		self.target_pos_pub = rospy.Publisher('/arduino_{}/target_pos'.format(axis), Int32, queue_size=10)

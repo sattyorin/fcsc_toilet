@@ -47,8 +47,8 @@ class EndEfectorCommander:
 	def setThetaVel(self, vel):
 		self.thetadynamixelcommander.selPosition(vel)
 
-	def setKarcherPos(self, pos):
-		self.karcherdynamixelcommander.selPosition(pos)
+	def setKarcherAngle(self, ang):
+		self.karcherdynamixelcommander.selPosition(ang)
 
 	def setKarcherVel(self, vel):
 		self.karcherdynamixelcommander.selPosition(vel)

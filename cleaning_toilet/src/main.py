@@ -59,24 +59,24 @@ def sweepTheFloor1():
 	print('[main::sweepTheFloor1]')
 	xaxiscom.setTargetPos(10)
 	eecom.setThetaPos(20)
-	eecom.setKarcherPos(-10)
+	eecom.setKarcherAngle(-10)
 
 def sweepTheFloor2():
 	print('[main::sweepTheFloor2]')
 	xaxiscom.setTargetPos(10)
 	eecom.setThetaPos(20)
-	eecom.setKarcherPos(-10)
+	eecom.setKarcherAngle(-10)
 
 def sweepTheFloor3():
 	print('[main::sweepTheFloor3]')
 	xaxiscom.setTargetPos(10)
 	eecom.setThetaPos(20)
-	eecom.setKarcherPos(-10)
+	eecom.setKarcherAngle(-10)
 
 def karcherTheToiletSeat1():
 	print('[main::karcherTheToiletSeat1]')
 	zaxiscom.setTargetPos(zaxiscom.seat_pos)
-	eecom.setKarcherPos(10)
+	eecom.setKarcherAngle(10)
 
 def karcherTheFloor1():
 	print('[main::karcherTheFloor1]')
