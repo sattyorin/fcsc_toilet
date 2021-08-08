@@ -4,6 +4,7 @@
 #include "arduino.hpp"
 
 //// pin assign setting ////
+#define ENABLE_PIN 11
 #define ENC_A 2
 #define ENC_B 3
 #define IN_A_PIN 12
@@ -14,23 +15,26 @@
 //// set constant ////
 #define PI 3.141592
 #define REFERENCE_CIRCLE_DIAMETER 30
-#define POWER_LIMIT 30
+#define POWER_LIMIT 20
 #define Kp 1.0
 #define Ki 0.0
 #define Kd -0.1
 #define PULSE_NUM 13.0
-#define GURE_RATIO 27.0
 
 //// init variable ////
 volatile int current_enc = 0;
+int pre_enc = 0;
 volatile int current_pos_mm = 0;
 int target_pos_mm = 0;
 int32_t last_calc_time = 0;
 float integral = 0.0;
 int last_error = 0;
 String control_mode = "None";
+unsigned long last_pwm_time;
+int last_target_pos = 0;
 std_msgs::Bool limit_state;
 std_msgs::Int32 current_pos;
+std_msgs::Bool finish_flag;
 
 //// define callback func ////
 void callbackTargetPos(const std_msgs::Int32 &pos);
@@ -42,6 +46,7 @@ void callbackResetFlag(const std_msgs::Bool &flag);
 ros::NodeHandle nh;
 ros::Publisher pub_current_pos("current_pos", &current_pos);
 ros::Publisher pub_limit_state("axis_limit_state", &limit_state);
+ros::Publisher pub_finish_flag("finish_flag", &finish_flag);
 ros::Subscriber<std_msgs::Int32> sub_target_pos("target_pos", callbackTargetPos);
 ros::Subscriber<std_msgs::Int32> sub_target_pwm("target_pwm", callbackTargetPWM);
 ros::Subscriber<std_msgs::String> sub_control_mode("control_mode", callbackControlMode);
@@ -57,6 +62,11 @@ void publishCurrentPos()
 	getState();
 	current_pos.data = current_pos_mm;
 	pub_current_pos.publish(&current_pos);
+}
+
+void publishFinishFlag()
+{
+	pub_finish_flag.publish(&finish_flag);
 }
 
 void countEnc()
@@ -82,6 +92,9 @@ void setPWM(int target_pwm)
 	if (target_pwm > 255) target_pwm = 255;
 	if (target_pwm > POWER_LIMIT) target_pwm = POWER_LIMIT;
 	analogWrite(PWM_PIN, target_pwm);
+	pre_enc = current_enc;
+	last_pwm_time = millis();
+	last_target_pos = target_pos_mm;
 }
 
 void callbackTargetPos(const std_msgs::Int32 &pos)
@@ -116,7 +129,25 @@ void servo()
 		float normalized_pid=Kp*error+Ki*integral+Kd*(error - last_error);
 		last_error = error;
 		last_calc_time = micros();
-		setPWM(int(PID_COFF*normalized_pid));
+		if (-POS_TOLERANCE <= error && error <= POS_TOLERANCE && pre_enc == current_enc)
+		{
+			setPWM(0);
+			finish_flag.data = true;
+		}
+		else if ((pre_enc == current_enc && finish_flag.data == false) 
+				|| (target_pos_mm - last_target_pos == 0 && finish_flag.data == true)) // if stop (exception)
+		{
+			if (millis() - last_pwm_time > 2000)
+			{
+				setPWM(0);
+				finish_flag.data = true;
+			}
+		}
+		else
+		{
+			setPWM(int(PID_COFF*normalized_pid));
+			finish_flag.data = false;
+		}
 	}
 }
 
@@ -127,7 +158,9 @@ void setup()
 	pinMode(IN_B_PIN, OUTPUT);
 	pinMode(PWM_PIN, OUTPUT);
 	pinMode(LED_PIN, OUTPUT);
-	pinMode(PI_LIMIT_PIN, INPUT);
+	pinMode(ENABLE_PIN, OUTPUT);
+	if (PI_LIMIT_INPUT_MODE == "INPUT_PULLUP") {pinMode(PI_LIMIT_PIN, INPUT_PULLUP);}
+	else {pinMode(PI_LIMIT_PIN, INPUT);}
 	// pinMode(ENC_A, INPUT);
 	// pinMode(ENC_B, INPUT);
 
@@ -135,6 +168,7 @@ void setup()
 	digitalWrite(IN_A_PIN, LOW);
 	digitalWrite(IN_B_PIN, LOW);
 	digitalWrite(LED_PIN, LOW);
+	digitalWrite(ENABLE_PIN, HIGH);
 	analogWrite(PWM_PIN, 0);
 
 	//// encoder ////
@@ -144,10 +178,13 @@ void setup()
 	nh.initNode();
 	nh.advertise(pub_current_pos);
 	nh.advertise(pub_limit_state);
+	nh.advertise(pub_finish_flag);
 	nh.subscribe(sub_target_pos);
 	nh.subscribe(sub_target_pwm);
 	nh.subscribe(sub_control_mode);
 	nh.subscribe(sub_reset_flag);
+
+	finish_flag.data = true;
 
 	delay(1000);
 }

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from x_axis import XAxisCommanderInterrupt
 from y_axis import YAxisCommanderInterrupt
 from z_axis import ZAxisCommanderInterrupt
@@ -25,6 +26,8 @@ xaxiscom = XAxisCommanderInterrupt(interrupt)
 yaxiscom = YAxisCommanderInterrupt(interrupt)
 zaxiscom = ZAxisCommanderInterrupt(interrupt)
 eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
+
+time.sleep(5) # wait for starting ros
 
 def zeroAdjusted():
 	print('[main::zeroAdjusted]')

@@ -17,7 +17,6 @@ class YAxisCommander(AxisCommander):
 		self.seat_frontX = int(zeroDF.at['seat_frontX', 'pos'])
 		self.seat_frontY = int(zeroDF.at['seat_frontY', 'pos'])
 
-
 class YAxisCommanderInterrupt(AxisCommanderInterrupt):
 	def __init__(self, interrupt):
 		super().__init__('y', interrupt)

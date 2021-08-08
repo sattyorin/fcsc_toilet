@@ -7,10 +7,10 @@ import time
 class AxisCommander:
 	def __init__(self, axis):
 		self.axis = axis
-		self.zero_adjusted_pwm = 100
+		self.zero_adjusted_pwm = 10
 		self.limit_state = False
+		self.finish_flag = False
 		self.current_pos = 0.0
-		self.allowable_error = 20
 		self.home_pos = 0
 		self.hold_pos_pwm = 0
 
@@ -24,22 +24,29 @@ class AxisCommander:
 
 		#### Subscriber ####
 		rospy.Subscriber('/arduino_{}/current_pos'.format(axis), Int32, self.callbackCurrentPos)
-		rospy.Subscriber('/arduino_{}/axis_limit_state', Bool, self.callbackLimitSwitch)
+		rospy.Subscriber('/arduino_{}/axis_limit_state'.format(axis), Bool, self.callbackLimitSwitch)
+		rospy.Subscriber('/arduino_{}/finish_flag'.format(axis), Bool, self.callbackFinishFlag)
 
 	def callbackCurrentPos(self, data):
 		self.current_pos = data.data
 
 	def callbackLimitSwitch(self, state):
 		self.limit_state = state.data
+
+	def callbackFinishFlag(self, state):
+		self.finish_flag = state.data
 	
 	def setTargetPos(self, pos):
-		self.control_mode_pub.publish('servo')
-		self.target_pos_pub.publish(pos)
-		while abs(self.current_pos - pos) > self.allowable_error:
+		for i in range(3):
+			self.control_mode_pub.publish('servo')
+		while self.finish_flag:
+			self.target_pos_pub.publish(pos)
+		while not self.finish_flag:
 			pass
 
 	def setPWM(self, pwm):
-		self.control_mode_pub.publish('pwm')
+		for i in range(3):
+			self.control_mode_pub.publish('pwm')
 		self.target_pwm_pub.publish(pwm)
 
 	def zeroAdjusted(self):
