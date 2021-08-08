@@ -11,22 +11,30 @@ import pandas as pd
 import multiprocessing as mp
 import time
 
-zaxiscom = ZAxisCommander()
 
-time.sleep(3)
+if __name__ == '__main__':
 
-# zaxiscom.zeroAdjusted()
+	zaxiscom = ZAxisCommander()
 
-zaxiscom.setTargetPos(20)
+	time.sleep(3)
 
-time.sleep(3)
+	# zaxiscom.zeroAdjusted()
 
-zaxiscom.setTargetPos(10)
 
-time.sleep(3)
+	# time.sleep(2)
 
-zaxiscom.setTargetPos(50)
+	# zaxiscom.setTargetPos(0)
 
-time.sleep(3)
+	# time.sleep(2)
 
-zaxiscom.setTargetPos(0)
+	# zaxiscom.setTargetPos(-130)
+
+	# time.sleep(2)
+
+	# zaxiscom.setTargetPos(-100)
+
+	# time.sleep(2)
+
+	zaxiscom.setTargetPos(-200)
+
+	time.sleep(2)

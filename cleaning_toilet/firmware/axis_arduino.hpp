@@ -15,8 +15,8 @@
 //// set constant ////
 #define PI 3.141592
 #define REFERENCE_CIRCLE_DIAMETER 30
-#define POWER_LIMIT 20
-#define Kp 1.0
+#define POWER_LIMIT 100
+#define Kp 2.0
 #define Ki 0.0
 #define Kd -0.1
 #define PULSE_NUM 13.0
@@ -31,7 +31,7 @@ float integral = 0.0;
 int last_error = 0;
 String control_mode = "None";
 unsigned long last_pwm_time;
-int last_target_pos = 0;
+bool change_target_pos = false;
 std_msgs::Bool limit_state;
 std_msgs::Int32 current_pos;
 std_msgs::Bool finish_flag;
@@ -94,11 +94,14 @@ void setPWM(int target_pwm)
 	analogWrite(PWM_PIN, target_pwm);
 	pre_enc = current_enc;
 	last_pwm_time = millis();
-	last_target_pos = target_pos_mm;
 }
 
 void callbackTargetPos(const std_msgs::Int32 &pos)
 {
+	if (target_pos_mm != pos.data)
+	{
+		change_target_pos = true;
+	}
 	target_pos_mm = pos.data;
 }
 
@@ -135,9 +138,9 @@ void servo()
 			finish_flag.data = true;
 		}
 		else if ((pre_enc == current_enc && finish_flag.data == false) 
-				|| (target_pos_mm - last_target_pos == 0 && finish_flag.data == true)) // if stop (exception)
+				|| (change_target_pos == false && finish_flag.data == true)) // if stop (exception)
 		{
-			if (millis() - last_pwm_time > 2000)
+			if (millis() - last_pwm_time > 1000)
 			{
 				setPWM(0);
 				finish_flag.data = true;
@@ -147,6 +150,7 @@ void servo()
 		{
 			setPWM(int(PID_COFF*normalized_pid));
 			finish_flag.data = false;
+			change_target_pos = false;
 		}
 	}
 }

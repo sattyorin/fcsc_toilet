@@ -7,7 +7,7 @@ import time
 class AxisCommander:
 	def __init__(self, axis):
 		self.axis = axis
-		self.zero_adjusted_pwm = 10
+		self.zero_adjusted_pwm = 40
 		self.limit_state = False
 		self.finish_flag = False
 		self.current_pos = 0.0
@@ -37,6 +37,9 @@ class AxisCommander:
 		self.finish_flag = state.data
 	
 	def setTargetPos(self, pos):
+		if pos > 0 and -900 > pos:
+			print('Do not broke the machine!!')
+			exit()
 		for i in range(3):
 			self.control_mode_pub.publish('servo')
 		while self.finish_flag:
@@ -47,6 +50,7 @@ class AxisCommander:
 	def setPWM(self, pwm):
 		for i in range(3):
 			self.control_mode_pub.publish('pwm')
+		# self.target_pos_pub.publish(0) # need to set last_target_pos of arduino prog
 		self.target_pwm_pub.publish(pwm)
 
 	def zeroAdjusted(self):
@@ -55,11 +59,10 @@ class AxisCommander:
 			pass
 		self.setPWM(self.hold_pos_pwm)
 
-		#### Don't setTargetPos ####
 		self.reset_flag_pub.publish(True)
 		time.sleep(1)
-		self.target_pos_pub.publish(self.current_pos)
 		self.reset_flag_pub.publish(False)
+		self.setTargetPos(-100)
 
 class AxisCommanderInterrupt(AxisCommander):
 	def __init__(self, axis, interrupt):

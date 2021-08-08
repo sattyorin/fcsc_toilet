@@ -1,7 +1,7 @@
 #define PID_COFF -1
 #define PI_LIMIT_PIN A5
 #define GURE_RATIO 100.0
-#define POS_TOLERANCE 2
+#define POS_TOLERANCE 5
 
 #define PI_LIMIT_INPUT_MODE "INPUT_PULLUP"
 
