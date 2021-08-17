@@ -10,7 +10,7 @@ import csv
 #### constant ####
 theta_dynamixel_id = 1
 karcher_dynamixel_id = 2
-pwm = 10
+pwm = 20
 zero_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/zero.csv'
 
 #### variable #####
@@ -18,11 +18,14 @@ select = 0
 flag_select = False
 flag_ee = False
 
+### ros ###
+rospy.init_node('joystick_control')
+
 #### instance ####
 xaxiscom = XAxisCommander()
 yaxiscom = YAxisCommander()
 zaxiscom = ZAxisCommander()
-eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
+# eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
 
 def writeCSV():
 
@@ -60,12 +63,9 @@ def selectPos():
 def callback(data):
 
 	#### move ####
-	xaxiscom.setPWM(data.buttons[1] * pwm)
-	xaxiscom.setPWM(data.buttons[3] * -pwm)
-	yaxiscom.setPWM(data.buttons[0] * pwm)
-	yaxiscom.setPWM(data.buttons[2] * -pwm)
-	xaxiscom.setPWM(data.buttons[5] * pwm)
-	xaxiscom.setPWM(data.buttons[7] * -pwm)
+	xaxiscom.setPWM(data.buttons[0] * pwm + data.buttons[2] * -pwm)
+	yaxiscom.setPWM(data.buttons[1] * pwm + data.buttons[3] * -pwm)
+	zaxiscom.setPWM(data.buttons[5] * (pwm+20) + data.buttons[7] * -pwm)
 
 	#### ee ####
 	if data.buttons[11] == 1:
@@ -112,8 +112,8 @@ def callback(data):
 
 
 def main():
-	rospy.init_node('joystick_control')
 	rospy.Subscriber("joy", Joy, callback)
+	print('joystick_control')
 
 	r=rospy.Rate(30)
 	while not rospy.is_shutdown():

@@ -6,6 +6,7 @@ void loop()
 	publishCurrentPos();
 	publishLimitState();
 	publishFinishFlag();
+	publishErrorFlag();
 	servo();
 	nh.spinOnce();
 }

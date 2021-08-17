@@ -15,10 +15,6 @@
 //// set constant ////
 #define PI 3.141592
 #define REFERENCE_CIRCLE_DIAMETER 30
-#define POWER_LIMIT 100
-#define Kp 2.0
-#define Ki 0.0
-#define Kd -0.1
 #define PULSE_NUM 13.0
 
 //// init variable ////
@@ -32,9 +28,11 @@ int last_error = 0;
 String control_mode = "None";
 unsigned long last_pwm_time;
 bool change_target_pos = false;
+int count = 0;
 std_msgs::Bool limit_state;
 std_msgs::Int32 current_pos;
 std_msgs::Bool finish_flag;
+std_msgs::Bool error_flag;
 
 //// define callback func ////
 void callbackTargetPos(const std_msgs::Int32 &pos);
@@ -47,6 +45,7 @@ ros::NodeHandle nh;
 ros::Publisher pub_current_pos("current_pos", &current_pos);
 ros::Publisher pub_limit_state("axis_limit_state", &limit_state);
 ros::Publisher pub_finish_flag("finish_flag", &finish_flag);
+ros::Publisher pub_error_flag("error_flag", &error_flag);
 ros::Subscriber<std_msgs::Int32> sub_target_pos("target_pos", callbackTargetPos);
 ros::Subscriber<std_msgs::Int32> sub_target_pwm("target_pwm", callbackTargetPWM);
 ros::Subscriber<std_msgs::String> sub_control_mode("control_mode", callbackControlMode);
@@ -69,39 +68,51 @@ void publishFinishFlag()
 	pub_finish_flag.publish(&finish_flag);
 }
 
+void publishErrorFlag()
+{
+	pub_error_flag.publish(&error_flag);
+}
+
 void countEnc()
 {
-	if (digitalRead(ENC_B) == 1) current_enc --;
-	else current_enc ++;
+	if (digitalRead(ENC_B) == 1) current_enc += ENC_COUNT_DIRECTION;
+	else current_enc -= ENC_COUNT_DIRECTION;
 }
 
 void setPWM(int target_pwm)
 {
-	if (target_pwm < 0)
+	if (target_pwm == 0)
 	{
-		digitalWrite(IN_A_PIN, LOW);
-		digitalWrite(IN_B_PIN, HIGH);
+		analogWrite(PWM_PIN, target_pwm);
 	}
 	else
 	{
-		digitalWrite(IN_B_PIN, LOW);
-		digitalWrite(IN_A_PIN, HIGH);
+		if (target_pwm < 0)
+		{
+			digitalWrite(IN_A_PIN, LOW);
+			digitalWrite(IN_B_PIN, HIGH);
+		}
+		else
+		{
+			digitalWrite(IN_B_PIN, LOW);
+			digitalWrite(IN_A_PIN, HIGH);
+		}
+
+		if (target_pwm < 0) target_pwm = -target_pwm;
+		if (target_pwm > 255) target_pwm = 255;
+		if (target_pwm > POWER_LIMIT) target_pwm = POWER_LIMIT;
+		analogWrite(PWM_PIN, target_pwm);
 	}
 
-	if (target_pwm < 0) target_pwm = -target_pwm;
-	if (target_pwm > 255) target_pwm = 255;
-	if (target_pwm > POWER_LIMIT) target_pwm = POWER_LIMIT;
-	analogWrite(PWM_PIN, target_pwm);
-	pre_enc = current_enc;
-	last_pwm_time = millis();
+	if (millis() - last_pwm_time > 500) // if time is short, it doesn't return even after overshooting
+	{
+		pre_enc = current_enc;
+		last_pwm_time = millis();
+	}
 }
 
 void callbackTargetPos(const std_msgs::Int32 &pos)
 {
-	if (target_pos_mm != pos.data)
-	{
-		change_target_pos = true;
-	}
 	target_pos_mm = pos.data;
 }
 
@@ -137,21 +148,30 @@ void servo()
 			setPWM(0);
 			finish_flag.data = true;
 		}
-		else if ((pre_enc == current_enc && finish_flag.data == false) 
-				|| (change_target_pos == false && finish_flag.data == true)) // if stop (exception)
+		else if (pre_enc == current_enc && finish_flag.data == false)
 		{
-			if (millis() - last_pwm_time > 1000)
+			if (millis() - last_pwm_time > 2000)
 			{
-				setPWM(0);
-				finish_flag.data = true;
+				error_flag.data = true;
 			}
 		}
 		else
 		{
 			setPWM(int(PID_COFF*normalized_pid));
 			finish_flag.data = false;
-			change_target_pos = false;
 		}
+
+		if (error_flag.data == false)
+		{
+			count ++;
+			if (count > 15)
+			{
+				count = 0;
+				error_flag.data = false;
+				finish_flag.data = true;
+			}
+		}
+
 	}
 }
 
@@ -183,12 +203,14 @@ void setup()
 	nh.advertise(pub_current_pos);
 	nh.advertise(pub_limit_state);
 	nh.advertise(pub_finish_flag);
+	nh.advertise(pub_error_flag);
 	nh.subscribe(sub_target_pos);
 	nh.subscribe(sub_target_pwm);
 	nh.subscribe(sub_control_mode);
 	nh.subscribe(sub_reset_flag);
 
 	finish_flag.data = true;
+	error_flag.data = false;
 
 	delay(1000);
 }

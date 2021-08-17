@@ -7,14 +7,15 @@ import time
 class AxisCommander:
 	def __init__(self, axis):
 		self.axis = axis
-		self.zero_adjusted_pwm = 40
 		self.limit_state = False
 		self.finish_flag = False
+		self.error_flag = False
 		self.current_pos = 0.0
 		self.home_pos = 0
 		self.hold_pos_pwm = 0
 
-		rospy.init_node('axis_{}'.format(axis))
+		# rospy.init_node('axis_{}'.format(axis))
+		self.r = rospy.Rate(100) 
 
 		#### Publisher ####
 		self.target_pos_pub = rospy.Publisher('/arduino_{}/target_pos'.format(axis), Int32, queue_size=10)
@@ -26,6 +27,7 @@ class AxisCommander:
 		rospy.Subscriber('/arduino_{}/current_pos'.format(axis), Int32, self.callbackCurrentPos)
 		rospy.Subscriber('/arduino_{}/axis_limit_state'.format(axis), Bool, self.callbackLimitSwitch)
 		rospy.Subscriber('/arduino_{}/finish_flag'.format(axis), Bool, self.callbackFinishFlag)
+		rospy.Subscriber('/arduino_{}/error_flag'.format(axis), Bool, self.callbackErrorFlag)
 
 	def callbackCurrentPos(self, data):
 		self.current_pos = data.data
@@ -35,23 +37,32 @@ class AxisCommander:
 
 	def callbackFinishFlag(self, state):
 		self.finish_flag = state.data
-	
-	def setTargetPos(self, pos):
-		if pos > 0 and -900 > pos:
+
+	def callbackErrorFlag(self, state):
+		self.error_flag = state.data
+
+	def checkPos(self, pos):
+		if self.min_pos > pos or pos > self.max_pos:
 			print('Do not broke the machine!!')
 			exit()
-		for i in range(3):
-			self.control_mode_pub.publish('servo')
+
+	def publishTopic(self, publisher, val):
+		for i in range(15):
+			publisher.publish(val)
+			self.r.sleep()
+	
+	def setTargetPos(self, pos):
+		self.checkPos(pos)
+		self.publishTopic(self.control_mode_pub, 'servo')
 		while self.finish_flag:
-			self.target_pos_pub.publish(pos)
+			self.publishTopic(self.target_pos_pub, pos)
 		while not self.finish_flag:
-			pass
+			if self.error_flag:
+				break
 
 	def setPWM(self, pwm):
-		for i in range(3):
-			self.control_mode_pub.publish('pwm')
-		# self.target_pos_pub.publish(0) # need to set last_target_pos of arduino prog
-		self.target_pwm_pub.publish(pwm)
+		self.publishTopic(self.control_mode_pub, 'pwm')
+		self.publishTopic(self.target_pwm_pub, pwm)
 
 	def zeroAdjusted(self):
 		self.setPWM(self.zero_adjusted_pwm)
@@ -59,10 +70,10 @@ class AxisCommander:
 			pass
 		self.setPWM(self.hold_pos_pwm)
 
-		self.reset_flag_pub.publish(True)
+		self.publishTopic(self.reset_flag_pub, True)
 		time.sleep(1)
-		self.reset_flag_pub.publish(False)
-		self.setTargetPos(-100)
+		self.publishTopic(self.reset_flag_pub, False)
+		self.setTargetPos(self.after_adjusted_pos)
 
 class AxisCommanderInterrupt(AxisCommander):
 	def __init__(self, axis, interrupt):
@@ -102,7 +113,7 @@ class AxisCommanderInterrupt(AxisCommander):
 		self.setTargetPos(self.interrupt.df[0, self.axis])
 
 	def setTargetPos(self, pos):
-		self.control_mode_pub.publish('servo')
-		self.target_pos_pub.publish(pos)
+		self.publishTopic(self.control_mode_pub, 'servo')
+		self.publishTopic(self.target_pos_pub, pos)
 		while abs(self.current_pos - pos) > self.allowable_error or self.interrupt_state:
 			pass
