@@ -1,5 +1,5 @@
-#define PID_COFF -1
-#define ENC_COUNT_DIRECTION -1
+#define PID_COFF 1
+#define ENC_COUNT_DIRECTION 1
 #define PI_LIMIT_PIN A5
 #define PI_THRESHOLD 150
 #define GURE_RATIO 27.0

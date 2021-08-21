@@ -161,10 +161,10 @@ void servo()
 			finish_flag.data = false;
 		}
 
-		if (error_flag.data == false)
+		if (error_flag.data == true)
 		{
 			count ++;
-			if (count > 15)
+			if (count > 30)
 			{
 				count = 0;
 				error_flag.data = false;

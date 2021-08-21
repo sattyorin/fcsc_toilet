@@ -63,8 +63,8 @@ def selectPos():
 def callback(data):
 
 	#### move ####
-	xaxiscom.setPWM(data.buttons[0] * pwm + data.buttons[2] * -pwm)
-	yaxiscom.setPWM(data.buttons[1] * pwm + data.buttons[3] * -pwm)
+	xaxiscom.setPWM(data.buttons[3] * pwm + data.buttons[1] * -pwm)
+	yaxiscom.setPWM(data.buttons[2] * pwm + data.buttons[0] * -pwm)
 	zaxiscom.setPWM(data.buttons[5] * (pwm+20) + data.buttons[7] * -pwm)
 
 	#### ee ####

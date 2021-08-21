@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import rospy
 from x_axis import XAxisCommanderInterrupt
 from y_axis import YAxisCommanderInterrupt
 from z_axis import ZAxisCommanderInterrupt
@@ -8,15 +9,19 @@ import pandas as pd
 import multiprocessing as mp
 import time
 import csv
+from pos import *
+
+rospy.init_node('main')
 
 #### constant ####
 theta_dynamixel_id = 1
 karcher_dynamixel_id = 2
-interrupt_csv_path = '../csv/interrupt.csv'
+# interrupt_csv_path = '../csv/interrupt.csv'
+interrupt_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/interrupt.csv'
 script_csv_path = '../csv/script.csv'
 _script_csv_path = '../csv/_script.csv'
-scriptDF = pd.read_csv(script_csv_path)
-_scriptDF = scriptDF.copy()
+# scriptDF = pd.read_csv(script_csv_path)
+# _scriptDF = scriptDF.copy()
 
 #### variable ####
 
@@ -57,32 +62,63 @@ def adjustZTheToiletSeat():
 	# zaxiscom.setPWM(zaxiscom.hold_pos_pwm)
 	# time.sleep(1)
 	# zaxiscom.seat_pos = zaxiscom.current_pos
+def sweep_benki_top():
+	print('[main::sweep benki top]')
 
-def sweepTheFloor1():
+def sweep_benki_rightside_floor():
+	#right side of benki
 	print('[main::sweepTheFloor1]')
-	xaxiscom.setTargetPos(10)
-	eecom.setThetaPos(20)
+	xaxiscom.setTargetPos(X_MIN)
+	yaxiscom.setTargetPos(Y_MIN)
+	eecom.setVacuumState(True)
 	eecom.setKarcherAngle(-10)
+	zaxiscom.setTargetPos(Z_FLOOR)
+	yaxiscom.setTargetPos(Y_BENKI_SIDE)
+	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
 
-def sweepTheFloor2():
-	print('[main::sweepTheFloor2]')
-	xaxiscom.setTargetPos(10)
-	eecom.setThetaPos(20)
+	xaxiscom.setTargetPos(X_BENKI_RIGHT_SIDE)
+	yaxiscom.setTargetPos(Y_MIN)
+	eecom.setVacuumState(True)
 	eecom.setKarcherAngle(-10)
+	zaxiscom.setTargetPos(Z_FLOOR)
+	yaxiscom.setTargetPos(Y_BENKI_SIDE)
+	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
 
-def sweepTheFloor3():
-	print('[main::sweepTheFloor3]')
-	xaxiscom.setTargetPos(10)
-	eecom.setThetaPos(20)
+def move_benki_right2left():
+	print('[main::move_benki_right2left]')
+	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
+	yaxiscom.setTargetPos(Y_EVACUATION)
+	xaxiscom.setTargetPos(X_BENKI_LEFT_SIDE)
+
+def sweep_benki_leftside_floor():
+	#left side of benki
+	print('[main::sweepTheFloor1]')
+	xaxiscom.setTargetPos(X_BENKI_LEFT_SIDE)
+	yaxiscom.setTargetPos(Y_MIN)
+	eecom.setVacuumState(True)
 	eecom.setKarcherAngle(-10)
+	zaxiscom.setTargetPos(Z_FLOOR)
+	yaxiscom.setTargetPos(Y_BENKI_SIDE)
+	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
+	
+	xaxiscom.setTargetPos(X_MAX)
+	yaxiscom.setTargetPos(Y_MIN)
+	eecom.setVacuumState(True)
+	zaxiscom.setTargetPos(Z_FLOOR)
+	yaxiscom.setTargetPos(Y_BENKI_SIDE)
+	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
 
-def karcherTheToiletSeat1():
-	print('[main::karcherTheToiletSeat1]')
-	zaxiscom.setTargetPos(zaxiscom.seat_pos)
-	eecom.setKarcherAngle(10)
+def move_benki_left2front():
+	print('[main::move_benki_left2front]')
+	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
+	yaxiscom.setTargetPos(Y_EVACUATION)
+	xaxiscom.setTargetPos(X_BENKI_LEFT_SIDE)
 
-def karcherTheFloor1():
-	print('[main::karcherTheFloor1]')
+def	sweep_benki_frontside_floor():
+	print('[main::sweep_benki_frontside_floor]')
+
+def	sweep_benki_frontside():
+	print('[main::sweep_benki_frontside]')
 
 def getAllState():
 	print('[main::getAllState]')
@@ -92,10 +128,38 @@ def doFunc(i):
 	_scriptDF.drop(0, axis=0)
 	_scriptDF.to_csv(_script_csv_path)
 
+def setcheckTargetPos(commander, pos):
+	if commander.setTargetPos(pos) == False:
+		commander.setTargetPos(pos)
+
 def main():
 	print('main')
-	for i in scriptDF.index:
-		doFunc(scriptDF.at[i, 'func'])
+
+	zaxiscom.zeroAdjusted()
+	yaxiscom.zeroAdjusted()
+	xaxiscom.zeroAdjusted()
+
+	setcheckTargetPos(xaxiscom, 300)
+	setcheckTargetPos(yaxiscom, 300)
+	zaxiscom.setTargetPos(-100)
+
+	# xaxiscom._setTargetPos(100)
+	# yaxiscom.setTargetPos(100)
+	# zaxiscom.setTargetPos(-100)
+
+	# zeroAdjusted()
+	# sweep_benki_top()
+	# sweep_benki_rightside_floor()
+	# move_benki_right2left()
+	# sweep_benki_leftside_floor()
+	# move_benki_left2front()
+	# sweep_benki_frontside_floor()
+	# sweep_benki_frontside()
+	# zeroAdjusted()
+	
+
+	# for i in scriptDF.index:
+	# 	doFunc(scriptDF.at[i, 'func'])
 
 if __name__ == "__main__":
 	main()

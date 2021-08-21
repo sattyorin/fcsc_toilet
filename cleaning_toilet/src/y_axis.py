@@ -4,10 +4,10 @@ import pandas as pd
 
 home_pos = 0
 hold_pos_pwm = 0
-zero_adjusted_pwm = -10
+zero_adjusted_pwm = -20
 min_pos = 0
 max_pos = 1000
-after_adjusted_pos = 100
+after_adjusted_pos = 80
 
 zero_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/zero.csv'
 zeroDF = pd.read_csv(zero_csv_path, index_col=0)

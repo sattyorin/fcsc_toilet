@@ -3,6 +3,7 @@ from std_msgs.msg import Int32
 from std_msgs.msg import Bool
 from std_msgs.msg import String
 import time
+import copy
 
 class AxisCommander:
 	def __init__(self, axis):
@@ -13,6 +14,7 @@ class AxisCommander:
 		self.current_pos = 0.0
 		self.home_pos = 0
 		self.hold_pos_pwm = 0
+		self.same_pos_tolerance = 10
 
 		# rospy.init_node('axis_{}'.format(axis))
 		self.r = rospy.Rate(100) 
@@ -47,24 +49,32 @@ class AxisCommander:
 			exit()
 
 	def publishTopic(self, publisher, val):
-		for i in range(15):
+		for i in range(10):
 			publisher.publish(val)
 			self.r.sleep()
+		
+	def publishTopicOnece(self, publisher, val):
+		publisher.publish(val)
+		self.r.sleep()
 	
 	def setTargetPos(self, pos):
+		print('[{}AxisCommander::setTargetPos]'.format(self.axis))
 		self.checkPos(pos)
+		self.publishTopic(self.target_pos_pub, self.current_pos) #stop servo
 		self.publishTopic(self.control_mode_pub, 'servo')
-		while self.finish_flag:
-			self.publishTopic(self.target_pos_pub, pos)
+		if not(pos-self.same_pos_tolerance < self.current_pos < pos+self.same_pos_tolerance):
+			while self.finish_flag:
+				self.publishTopic(self.target_pos_pub, pos)
 		while not self.finish_flag:
 			if self.error_flag:
 				break
 
 	def setPWM(self, pwm):
 		self.publishTopic(self.control_mode_pub, 'pwm')
-		self.publishTopic(self.target_pwm_pub, pwm)
+		self.publishTopicOnece(self.target_pwm_pub, pwm)
 
 	def zeroAdjusted(self):
+		print('[{}AxisCommander::zeroAdjusted]'.format(self.axis))
 		self.setPWM(self.zero_adjusted_pwm)
 		while not self.limit_state:
 			pass
@@ -78,42 +88,107 @@ class AxisCommander:
 class AxisCommanderInterrupt(AxisCommander):
 	def __init__(self, axis, interrupt):
 		super().__init__(axis)
+		print('[{}AxisCommanderInterrupt::__init__]'.format(self.axis))
 
 		self.interrupt = interrupt
 		self.interrupt_state = False
-		self.interrupt_flag = True
+		self.interrupt_flag = False
+		self.wait_flag = False
+		self.interrupt_count = 0
+		self.check_flag = False
 
 		rospy.Subscriber('/arduino_wall/interrupt_switch_state', Bool, self.callbackInterruptSwitch)
 
 	def callbackInterruptSwitch(self, state):
 		self.interrupt_state = state.data
-		if self.interrupt_state == True and self.interrupt_flag:
-			self.interrupt_flag = False
-			self.doInterruptJob()
-			self.interrupt_flag = True
+		if self.interrupt_state or self.interrupt_flag == True:
+			if self.interrupt_count > 5:
+				self.interrupt_flag = True
+				self.doInterruptJob()
+			else:
+				self.interrupt_count += 1
 
 	def doInterruptJob(self):
-		#### stop servo ####
-		self.setTargetPos(self.current_pos)
 
-		#### send pos ####
-		self.interrupt.getAxisPos(self.axis, self.current_pos)
-		self.interrupt.checkData()
-		while not self.interrupt.go_home_flag:
+		if self.interrupt.go_home_flag == False and self.wait_flag == False:
+			#### stop servo ####
+			self._setTargetPos(self.current_pos)
+			self.interrupt.setCurrentPos(self.axis, self.current_pos)
+
+			#### save pos ####
+			self.interrupt.getAxisPos(self.axis, self.current_pos)
+			self.interrupt.checkData()
+
+		elif self.interrupt.go_home_flag and self.wait_flag == False:
+			#### go home pos ####
+			if self.interrupt.got_home_flag == False:
+				if self.interrupt.getHomePos(self.axis):
+					print('[{}AxisCommanderInterrupt::doInterruptJob] go {}'.format(self.axis, self.interrupt.home_pos))
+					self._setTargetPos(self.interrupt.home_pos)
+					self.interrupt.gotHomePos()
+			else:
+				self.wait_flag = True
+				print('[{}AxisCommanderInterrupt::doInterruptJob] got home'.format(self.axis))
+
+		elif self.wait_flag and self.interrupt_state:
+			#### wait press switch ####
 			pass
 
-		#### go home pos ####
-		self.setTargetPos(self.home_pos)
+		elif self.wait_flag and self.interrupt_state == False:
+			#### return to the position before the interruption ####
+			if self.interrupt.got_interruption_pos_flag == False:
+				if self.interrupt.getInterruptionPos(self.axis):
+					self._setTargetPos(self.interrupt.home_pos)
+					self.interrupt.gotInterruptionPos()
 
-		#### wait press switch ####
-		while self.interrupt_state:
-			pass
+			elif self.interrupt.restart_flag == False and self.check_flag == False:
+				self.interrupt.checkGotInterruptionPos(self.axis)
+				self.check_flag = True
 
-		#### return to the position before the interruption ####
-		self.setTargetPos(self.interrupt.df[0, self.axis])
+			elif self.interrupt.restart_flag == False and self.check_flag:
+				pass
+
+			elif self.interrupt.restart_flag:
+				self.wait_flag = False
+				self.interrupt_count = 0
+				self.interrupt_flag = False
+				self.pub_return_pos_flag = False
+				self.check_flag = False
+				self.interrupt.checkReturnJob(self.axis)
+				print('[{}AxisCommanderInterrupt::doInterruptJob] return job'.format(self.axis))
+			
+			else:
+				assert False
+
+		else:
+			assert False
+
+	def _setTargetPos(self, pos):
+		print('[{}AxisCommanderInterrupt::_setTargetPos]'.format(self.axis))
+		self.checkPos(pos)
+		self.publishTopic(self.target_pos_pub, self.current_pos) #stop servo
+		self.publishTopic(self.control_mode_pub, 'servo')
+		if not(pos-self.same_pos_tolerance < self.current_pos < pos+self.same_pos_tolerance):
+			while self.finish_flag:
+				self.publishTopic(self.target_pos_pub, pos)
+		while not self.finish_flag:
+			if self.error_flag:
+				break
 
 	def setTargetPos(self, pos):
+		print('[{}AxisCommanderInterrupt::setTargetPos]'.format(self.axis))
+		self.checkPos(pos)
+		self.publishTopic(self.target_pos_pub, self.current_pos) #stop servo
 		self.publishTopic(self.control_mode_pub, 'servo')
-		self.publishTopic(self.target_pos_pub, pos)
-		while abs(self.current_pos - pos) > self.allowable_error or self.interrupt_state:
-			pass
+
+		if not(pos-self.same_pos_tolerance < self.current_pos < pos+self.same_pos_tolerance):
+			while self.finish_flag:
+				self.publishTopic(self.target_pos_pub, pos)
+		while not self.finish_flag:
+			if self.interrupt_flag:
+				while self.interrupt_flag:
+					pass
+				return False
+			if self.error_flag:
+				break
+		return True

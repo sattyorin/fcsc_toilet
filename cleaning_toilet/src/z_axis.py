@@ -7,7 +7,7 @@ hold_pos_pwm = 0
 zero_adjusted_pwm = 35
 min_pos = -900
 max_pos = 0
-after_adjusted_pos = -100
+after_adjusted_pos = -50
 
 zero_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/zero.csv'
 zeroDF = pd.read_csv(zero_csv_path, index_col=0)

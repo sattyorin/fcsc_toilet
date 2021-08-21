@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
 	xaxiscom = XAxisCommander()
 	yaxiscom = YAxisCommander()
-	zaxiscom = ZAxisCommander()
+	zaxiscom = ZAxisCommander()	
 
 	time.sleep(3)
 
@@ -28,11 +28,13 @@ if __name__ == '__main__':
 	yaxiscom.zeroAdjusted()
 
 	# time.sleep(2)
-	# zaxiscom.setTargetPos(0)
+	# xaxiscom.setTargetPos(100)
+	# time.sleep(2)
+	# xaxiscom.setTargetPos(100)
 
 	# time.sleep(2)
 
-	# xaxiscom.setTargetPos(100)
+	# yaxiscom.setTargetPos(300)
 	# time.sleep(2)
 	# xaxiscom.setTargetPos(-50)
 	# time.sleep(2)
