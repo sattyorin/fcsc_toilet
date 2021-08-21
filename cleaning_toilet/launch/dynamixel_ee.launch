@@ -20,5 +20,4 @@
       dxl_write_period: 0.010
     </rosparam>
   </node>
-  <!-- <node pkg="loraine_tasks" name="gripper_commmmand_listener" type="dxl_gripper_driver.py" output="screen"/> -->
 </launch>

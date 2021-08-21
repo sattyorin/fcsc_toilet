@@ -67,18 +67,18 @@ class EndEfectorCommander:
 			self.doInterruptJob()
 			self.interrupt_flag = True
 
-	def doInterruptJob(self):
-		#### stop vacuum ####
-		vacuum_state = self.vacuum_state
-		self.setVacuumState(False)
+	# def doInterruptJob(self):
+	# 	#### stop vacuum ####
+	# 	vacuum_state = self.vacuum_state
+	# 	self.setVacuumState(False)
 
-		#### send state ####
-		self.interrupt.getState('vacuum_state', vacuum_state)
-		self.interrupt.checkData()
+	# 	#### send state ####
+	# 	self.interrupt.getState('vacuum_state', vacuum_state)
+	# 	self.interrupt.checkData()
 
-		#### wait press switch ####
-		while self.interrupt_state:
-			pass
+	# 	#### wait press switch ####
+	# 	while self.interrupt_state:
+	# 		pass
 
-		#### return to the state before the interruption ####
-		self.setVacuumState(vacuum_state)
+	# 	#### return to the state before the interruption ####
+	# 	self.setVacuumState(vacuum_state)

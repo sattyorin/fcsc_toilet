@@ -30,7 +30,7 @@ void publishLimitState()
 {
 	// if (analogRead(PI_PIN) < PI_THRESHOLD) limit_state.data = false;
 	// else limit_state.data = true;
-	limit_state.data = !digitalRead(LIMIT_PIN)
+	limit_state.data = !digitalRead(LIMIT_PIN);
 	pub_limit_state.publish(&limit_state);
 }
 

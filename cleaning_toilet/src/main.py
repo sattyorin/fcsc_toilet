@@ -135,13 +135,20 @@ def setcheckTargetPos(commander, pos):
 def main():
 	print('main')
 
-	zaxiscom.zeroAdjusted()
-	yaxiscom.zeroAdjusted()
-	xaxiscom.zeroAdjusted()
+	# eecom.setThetaPos(2050)
 
-	setcheckTargetPos(xaxiscom, 300)
-	setcheckTargetPos(yaxiscom, 300)
-	zaxiscom.setTargetPos(-100)
+	eecom.setVacuumState(True)
+	time.sleep(2)
+	eecom.setVacuumState(False)
+
+
+	# zaxiscom.zeroAdjusted()
+	# yaxiscom.zeroAdjusted()
+	# xaxiscom.zeroAdjusted()
+
+	# setcheckTargetPos(xaxiscom, 300)
+	# setcheckTargetPos(yaxiscom, 300)
+	# zaxiscom.setTargetPos(-100)
 
 	# xaxiscom._setTargetPos(100)
 	# yaxiscom.setTargetPos(100)

@@ -1,6 +1,6 @@
 
 <launch>
-    <node ns="arduino_y" 
+    <!-- <node ns="arduino_y" 
         name="arduino_y_node" 
         pkg="rosserial_python" 
         type="serial_node.py" 
@@ -23,5 +23,11 @@
         pkg="rosserial_python"
         type="serial_node.py" 
         args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_7573030313935160F170-if00" 
+        output="screen" /> -->
+    <node ns="arduino_ee"
+        name="arduino_ee_node" 
+        pkg="rosserial_python"
+        type="serial_node.py" 
+        args="_port:= /dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_8553130363135131A1F1-if00" 
         output="screen" />
 </launch>

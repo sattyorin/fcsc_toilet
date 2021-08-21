@@ -1,0 +1,7 @@
+<launch>
+	<include file="$(find cleaning_toilet)/launch/dynamixel_ee.launch">
+	</include>
+
+	<include file="$(find cleaning_toilet)/launch/arduino.launch">
+	</include>
+</launch>
