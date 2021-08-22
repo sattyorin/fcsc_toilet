@@ -9,9 +9,6 @@
 		type="joystick_control.py"
 		output="screen"
 	/>
-	<include file="$(find cleaning_toilet)/launch/arduino.launch"
+	<!-- <include file="$(find cleaning_toilet)/launch/arduino.launch" -->
 	/>
-	<node pkg="timed_roslaunch" type="timed_roslaunch.sh"
-    args="5 cleaning_toilet dynamixel_ee.launch"
-   name="timed_roslaunch" output="screen" />
 </launch>

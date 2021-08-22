@@ -16,7 +16,7 @@ zero_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/zero.csv'
 #### variable #####
 select = 0
 flag_select = False
-flag_ee = False
+flag_ee = 0
 
 ### ros ###
 rospy.init_node('joystick_control')
@@ -25,7 +25,7 @@ rospy.init_node('joystick_control')
 xaxiscom = XAxisCommander()
 yaxiscom = YAxisCommander()
 zaxiscom = ZAxisCommander()
-# eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
+eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
 
 def writeCSV():
 
@@ -45,7 +45,6 @@ def selectPos():
 		select = 0
 	else:
 		select += 1
-	
 	if select == 0:
 		print('seat_left')
 	elif select == 1:
@@ -63,17 +62,25 @@ def selectPos():
 def callback(data):
 
 	#### move ####
-	xaxiscom.setPWM(data.buttons[3] * pwm + data.buttons[1] * -pwm)
-	yaxiscom.setPWM(data.buttons[2] * pwm + data.buttons[0] * -pwm)
-	zaxiscom.setPWM(data.buttons[5] * (pwm+20) + data.buttons[7] * -pwm)
+	xaxiscom.setPWM(data.buttons[15] * pwm + data.buttons[16] * -pwm)
+	yaxiscom.setPWM(data.buttons[14] * pwm + data.buttons[13] * -pwm)
+	zaxiscom.setPWM(data.buttons[2] * (pwm+20) + data.buttons[0] * -pwm)
+	
+	if data.axes[3] == -1.0:
+		eecom.setThetaPos(2600)
+	if data.buttons[12] == 1:
+		eecom.setThetaPos(2050)
+	if data.axes[3] == 1.0:
+		eecom.setThetaPos(1500)
 
-	#### ee ####
-	if data.buttons[11] == 1:
+	### ee ####
+	if data.buttons[10] == 1:
+		global flag_ee
 		flag_ee = not flag_ee
 		if flag_ee:
-			eecom.setThetaPos(1024)
+			eecom.setVacuumState(True)
 		else:
-			eecom.setThetaPos(0)
+			eecom.setVacuumState(False)
 
 	#### select pos ####
 	if data.buttons[8] == 1 and flag_select == True:
@@ -85,7 +92,6 @@ def callback(data):
 
 	#### save pos ####
 	if data.buttons[6] == 1:
-
 		if select == 0:
 			xaxiscom.seat_left = xaxiscom.current_pos
 			print('seat_left: {}'.format(xaxiscom.seat_left))

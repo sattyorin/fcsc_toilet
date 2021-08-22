@@ -68,55 +68,89 @@ def sweep_benki_top():
 def sweep_benki_rightside_floor():
 	#right side of benki
 	print('[main::sweepTheFloor1]')
-	xaxiscom.setTargetPos(X_MIN)
-	yaxiscom.setTargetPos(Y_MIN)
+	eecom.setThetaPos(ANGLE_EE_CENTER)
+	# input("Waiting...")
+	setcheckTargetPos(xaxiscom,X_MIN)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	# input("Waiting...")
 	eecom.setVacuumState(True)
-	eecom.setKarcherAngle(-10)
-	zaxiscom.setTargetPos(Z_FLOOR)
-	yaxiscom.setTargetPos(Y_BENKI_SIDE)
-	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
-
-	xaxiscom.setTargetPos(X_BENKI_RIGHT_SIDE)
-	yaxiscom.setTargetPos(Y_MIN)
-	eecom.setVacuumState(True)
-	eecom.setKarcherAngle(-10)
-	zaxiscom.setTargetPos(Z_FLOOR)
-	yaxiscom.setTargetPos(Y_BENKI_SIDE)
-	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
+	# input("Waiting...")
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
+	# input("Waiting...")
+	eecom.setVacuumState(False)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	# input("Waiting...")
+	setcheckTargetPos(xaxiscom,X_BENKI_RIGHT_SIDE)
+	# input("Waiting...")
+	# eecom.setVacuumState(True)
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
+	# input("Waiting...")
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
 
 def move_benki_right2left():
 	print('[main::move_benki_right2left]')
-	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
-	yaxiscom.setTargetPos(Y_EVACUATION)
-	xaxiscom.setTargetPos(X_BENKI_LEFT_SIDE)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	# input("Waiting...")
+	setcheckTargetPos(xaxiscom,X_BENKI_LEFT_SIDE)
+	# input("Waiting...")
 
 def sweep_benki_leftside_floor():
 	#left side of benki
 	print('[main::sweepTheFloor1]')
-	xaxiscom.setTargetPos(X_BENKI_LEFT_SIDE)
-	yaxiscom.setTargetPos(Y_MIN)
-	eecom.setVacuumState(True)
-	eecom.setKarcherAngle(-10)
-	zaxiscom.setTargetPos(Z_FLOOR)
-	yaxiscom.setTargetPos(Y_BENKI_SIDE)
-	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
-	
-	xaxiscom.setTargetPos(X_MAX)
-	yaxiscom.setTargetPos(Y_MIN)
-	eecom.setVacuumState(True)
-	zaxiscom.setTargetPos(Z_FLOOR)
-	yaxiscom.setTargetPos(Y_BENKI_SIDE)
-	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	# input("Waiting...")
+	setcheckTargetPos(xaxiscom,X_BENKI_LEFT_SIDE)
+	# input("Waiting...")
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
+	# input("Waiting...")
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	# input("Waiting...")
+	setcheckTargetPos(xaxiscom,X_MAX)
+	# input("Waiting...")
+	# eecom.setVacuumState(True)
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
+	# input("Waiting...")
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
 
 def move_benki_left2front():
 	print('[main::move_benki_left2front]')
-	zaxiscom.setTargetPos(Z_FLOOR_MOVING)
-	yaxiscom.setTargetPos(Y_EVACUATION)
-	xaxiscom.setTargetPos(X_BENKI_LEFT_SIDE)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(yaxiscom,Y_MAX)
+	setcheckTargetPos(xaxiscom,X_MIN)
 
 def	sweep_benki_frontside_floor():
 	print('[main::sweep_benki_frontside_floor]')
-
+	eecom.setThetaPos(ANGLE_EE_LEFT)
+	setcheckTargetPos(xaxiscom,X_MIN)
+	target_Y=Y_MAX
+	while(target_Y>Y_BENKI_FRONT_EE_SIDE):
+		setcheckTargetPos(yaxiscom,target_Y)
+		setcheckTargetPos(zaxiscom,Z_FLOOR)
+		setcheckTargetPos(xaxiscom,X_MAX)
+		setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+		setcheckTargetPos(xaxiscom,X_MIN)
+		target_Y -=150
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE)
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	setcheckTargetPos(xaxiscom,X_MAX)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(xaxiscom,X_MIN)
+	
 def	sweep_benki_frontside():
 	print('[main::sweep_benki_frontside]')
 
@@ -131,20 +165,22 @@ def doFunc(i):
 def setcheckTargetPos(commander, pos):
 	if commander.setTargetPos(pos) == False:
 		commander.setTargetPos(pos)
+	# input("Press enter to next")
 
 def main():
 	print('main')
 
 	# eecom.setThetaPos(2050)
 
-	eecom.setVacuumState(True)
-	time.sleep(2)
-	eecom.setVacuumState(False)
+	# eecom.setVacuumState(True)
+	# time.sleep(2)
+	# eecom.setVacuumState(False)
 
-
-	# zaxiscom.zeroAdjusted()
-	# yaxiscom.zeroAdjusted()
-	# xaxiscom.zeroAdjusted()
+	eecom.setThetaPos(ANGLE_EE_CENTER)
+	zaxiscom.zeroAdjusted()	
+	xaxiscom.zeroAdjusted()
+	yaxiscom.zeroAdjusted()
+	
 
 	# setcheckTargetPos(xaxiscom, 300)
 	# setcheckTargetPos(yaxiscom, 300)
@@ -156,11 +192,12 @@ def main():
 
 	# zeroAdjusted()
 	# sweep_benki_top()
-	# sweep_benki_rightside_floor()
-	# move_benki_right2left()
-	# sweep_benki_leftside_floor()
-	# move_benki_left2front()
-	# sweep_benki_frontside_floor()
+	input("Waiting...")
+	sweep_benki_rightside_floor()
+	move_benki_right2left()
+	sweep_benki_leftside_floor()
+	move_benki_left2front()
+	sweep_benki_frontside_floor()
 	# sweep_benki_frontside()
 	# zeroAdjusted()
 	

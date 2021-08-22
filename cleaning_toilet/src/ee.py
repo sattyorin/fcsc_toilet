@@ -54,6 +54,7 @@ class EndEfectorCommander:
 		self.karcherdynamixelcommander.selPosition(vel)
 
 	def setVacuumState(self, state):
+		return
 		self.vacuume_state_pub.publish(state)
 		self.vacuum_state = state
 

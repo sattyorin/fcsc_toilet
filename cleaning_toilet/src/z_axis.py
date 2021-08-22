@@ -5,7 +5,7 @@ import pandas as pd
 home_pos = 0
 hold_pos_pwm = 0
 zero_adjusted_pwm = 35
-min_pos = -900
+min_pos = -860
 max_pos = 0
 after_adjusted_pos = -50
 

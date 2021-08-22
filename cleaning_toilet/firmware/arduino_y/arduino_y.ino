@@ -7,7 +7,7 @@
 #define Kp 1.0
 #define Ki 0.0
 #define Kd -0.1
-#define POWER_LIMIT 20
+#define POWER_LIMIT 40
 
 #define PI_LIMIT_INPUT_MODE "INPUT"
 
