@@ -6,6 +6,7 @@ from y_axis import YAxisCommander
 from z_axis import ZAxisCommander
 from ee import EndEfectorCommander
 import csv
+from pos import *
 
 #### constant ####
 theta_dynamixel_id = 1
@@ -67,11 +68,11 @@ def callback(data):
 	zaxiscom.setPWM(data.buttons[2] * (pwm+20) + data.buttons[0] * -pwm)
 	
 	if data.axes[3] == -1.0:
-		eecom.setThetaPos(2600)
+		eecom.setThetaPos(ANGLE_EE_RIGHT)
 	if data.buttons[12] == 1:
-		eecom.setThetaPos(2050)
+		eecom.setThetaPos(ANGLE_EE_CENTER)
 	if data.axes[3] == 1.0:
-		eecom.setThetaPos(1500)
+		eecom.setThetaPos(ANGLE_EE_LEFT)
 
 	### ee ####
 	if data.buttons[10] == 1:

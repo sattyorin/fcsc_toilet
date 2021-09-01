@@ -1,6 +1,7 @@
 import rospy
 from dynamixel_workbench_msgs.srv import *
 from std_msgs.msg import Bool
+from pos import *
 
 class DynamixelCommander:
 	def __init__(self, id):
@@ -15,7 +16,7 @@ class DynamixelCommander:
 		request.value = vel
 		self.dynamixel_com(request)
 
-	def selPosition(self, position):
+	def setPosition(self, position):
 		request = DynamixelCommandRequest()
 		request.command = ""
 		request.id = self.id
@@ -29,6 +30,7 @@ class EndEfectorCommander:
 		self.floor_switch = False
 		self.vacuum_state = False
 		self.interrupt_flag = False
+		self.current_theta = ANGLE_EE_CENTER
 
 		#### dynamixel ####
 		self.thetadynamixelcommander = DynamixelCommander(theta_dynamixel_id)
@@ -39,34 +41,35 @@ class EndEfectorCommander:
 
 		#### Subscriber ####
 		rospy.Subscriber('/arduino_ee/floor_switch_state', Bool, self.callbackFloorSwitch)
-		rospy.Subscriber('/arduino_wall/interrupt_switch_state', Bool, self.callbackInterruptSwitch)
+		# rospy.Subscriber('/arduino_wall/interrupt_switch_state', Bool, self.callbackInterruptSwitch)
 
 	def setThetaPos(self, pos):
-		self.thetadynamixelcommander.selPosition(pos)
+		print('[EndEfectorCommander::setThetaPos] pos: {}'.format(pos))
+		self.current_theta = pos
+		self.thetadynamixelcommander.setPosition(pos)
 
 	def setThetaVel(self, vel):
-		self.thetadynamixelcommander.selPosition(vel)
+		self.thetadynamixelcommander.setVelocity(vel)
 
 	def setKarcherAngle(self, ang):
-		self.karcherdynamixelcommander.selPosition(ang)
+		self.karcherdynamixelcommander.setPosition(ang)
 
 	def setKarcherVel(self, vel):
-		self.karcherdynamixelcommander.selPosition(vel)
+		self.karcherdynamixelcommander.setVelocity(vel)
 
 	def setVacuumState(self, state):
-		return
 		self.vacuume_state_pub.publish(state)
 		self.vacuum_state = state
 
 	def callbackFloorSwitch(self, state):
 		self.floor_switch = state
 
-	def callbackInterruptSwitch(self, state):
-		self.interrupt_state = state.data
-		if self.interrupt_state == True and self.interrupt_flag:
-			self.interrupt_flag = False
-			self.doInterruptJob()
-			self.interrupt_flag = True
+	# def callbackInterruptSwitch(self, state):
+	# 	self.interrupt_state = state.data
+	# 	if self.interrupt_state == True and self.interrupt_flag:
+	# 		self.interrupt_flag = False
+	# 		self.doInterruptJob()
+	# 		self.interrupt_flag = True
 
 	# def doInterruptJob(self):
 	# 	#### stop vacuum ####

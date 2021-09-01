@@ -45,11 +45,11 @@ class AxisCommander:
 
 	def checkPos(self, pos):
 		if self.min_pos > pos or pos > self.max_pos:
-			print('Do not broke the machine!!')
+			print('Do not broke the machine!! Target->',pos)
 			exit()
 
 	def publishTopic(self, publisher, val):
-		for i in range(10):
+		for i in range(6):
 			publisher.publish(val)
 			self.r.sleep()
 		
@@ -164,26 +164,34 @@ class AxisCommanderInterrupt(AxisCommander):
 			assert False
 
 	def _setTargetPos(self, pos):
-		print('[{}AxisCommanderInterrupt::_setTargetPos]'.format(self.axis))
+		print('[{}AxisCommanderInterrupt::_setTargetPos] target pos: {}'.format(self.axis, pos))
 		self.checkPos(pos)
 		self.publishTopic(self.target_pos_pub, self.current_pos) #stop servo
 		self.publishTopic(self.control_mode_pub, 'servo')
 		if not(pos-self.same_pos_tolerance < self.current_pos < pos+self.same_pos_tolerance):
+			self.publishTopic(self.target_pos_pub, pos)
 			while self.finish_flag:
 				self.publishTopic(self.target_pos_pub, pos)
+			print('[{}AxisCommanderInterrupt::_setTargetPos] publishTopic()'.format(self.axis))
+		else:
+			print('[{}AxisCommanderInterrupt::_setTargetPos] The pos was not published. current_pos: {}'.format(self.axis, self.current_pos))
 		while not self.finish_flag:
 			if self.error_flag:
 				break
 
 	def setTargetPos(self, pos):
-		print('[{}AxisCommanderInterrupt::setTargetPos]'.format(self.axis))
+		print('[{}AxisCommanderInterrupt::setTargetPos] target pos: {}'.format(self.axis, pos))
 		self.checkPos(pos)
 		self.publishTopic(self.target_pos_pub, self.current_pos) #stop servo
 		self.publishTopic(self.control_mode_pub, 'servo')
 
 		if not(pos-self.same_pos_tolerance < self.current_pos < pos+self.same_pos_tolerance):
+			self.publishTopic(self.target_pos_pub, pos)
 			while self.finish_flag:
 				self.publishTopic(self.target_pos_pub, pos)
+			print('[{}AxisCommanderInterrupt::setTargetPos] publishTopic()'.format(self.axis))
+		else:
+			print('[{}AxisCommanderInterrupt::setTargetPos] The pos was not published. current_pos: {}'.format(self.axis, self.current_pos))
 		while not self.finish_flag:
 			if self.interrupt_flag:
 				while self.interrupt_flag:

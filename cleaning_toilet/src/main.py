@@ -26,11 +26,11 @@ _script_csv_path = '../csv/_script.csv'
 #### variable ####
 
 #### instance ####
-interrupt = Interrupt(interrupt_csv_path)
+eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
+interrupt = Interrupt(interrupt_csv_path, eecom)
 xaxiscom = XAxisCommanderInterrupt(interrupt)
 yaxiscom = YAxisCommanderInterrupt(interrupt)
 zaxiscom = ZAxisCommanderInterrupt(interrupt)
-eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
 
 time.sleep(5) # wait for starting ros
 
@@ -62,36 +62,102 @@ def adjustZTheToiletSeat():
 	# zaxiscom.setPWM(zaxiscom.hold_pos_pwm)
 	# time.sleep(1)
 	# zaxiscom.seat_pos = zaxiscom.current_pos
+# 初期位置(便座左)に移動
+def move_init_pos():
+	print('[main::move_init_pos]')
+	eecom.setThetaPos(ANGLE_EE_CENTER)
+	setcheckTargetPos(xaxiscom,X_MIN)
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	setcheckTargetPos(xaxiscom,X_MAX)
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	eecom.setThetaPos(ANGLE_EE_LEFT)
+
+# スタートコマンド待機
+def wait_start_command():
+	print('[main::wait_start_command]')
+	input("Press Enter...")
+# 便器上清掃
 def sweep_benki_top():
-	print('[main::sweep benki top]')
+	print('[main::sweep_benki_top]')
+	eecom.setThetaPos(ANGLE_EE_CENTER)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	setcheckTargetPos(xaxiscom,X_BENKI_FRONT-60)
+	setcheckTargetPos(yaxiscom,Y_BENKI_TOP_MIN)
+	setcheckTargetPos(zaxiscom,Z_BENKI)
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(xaxiscom,X_BENKI_FRONT+60)
+	setcheckTargetPos(yaxiscom,Y_BENKI_TOP_MIN)
+	setcheckTargetPos(zaxiscom,Z_BENKI)
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+
+# エンドエフェクタ安全確保
+def sweep_laege_gomi():
+	print('[main::sweep_laege_gomi]')
+	eecom.setThetaPos(ANGLE_EE_CENTER)
+	setcheckTargetPos(xaxiscom,X_MIN)
+	setcheckTargetPos(yaxiscom,Y_MAX)
+	#hoge.bar_down()
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	#hoge.bar_UP()
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	
+# 便座正面床清掃
+def sweep_benki_frontside_floor_first():
+	print('[main::sweep_benki_frontside_floor_first]')
+	eecom.setThetaPos(ANGLE_EE_LEFT)
+	setcheckTargetPos(xaxiscom,X_FRONT_FLOOR_MIN)
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE)
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	setcheckTargetPos(xaxiscom,X_FRONT_FLOOR_MAX)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(xaxiscom,X_FRONT_FLOOR_MIN)
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE+150)
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	setcheckTargetPos(xaxiscom,X_FRONT_FLOOR_MAX)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+
+
+# 便座前面清掃
+def sweep_benki_frontside():
+	print('[main::sweep_benki_frontside]')
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE+40)
+	eecom.setThetaPos(ANGLE_EE_LEFT)
+	setcheckTargetPos(xaxiscom,X_BENKI_FRONT)
+	setcheckTargetPos(zaxiscom,Z_FLOOR+10)
+	X_HUKI_DIST=50
+	Y_NIGE=20
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE-50)
+	setcheckTargetPos(zaxiscom,Z_FLOOR+100)
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE-30)
+	setcheckTargetPos(zaxiscom,Z_FLOOR+200)
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE-20)
+	setcheckTargetPos(zaxiscom,Z_FLOOR+300)
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE-20)
+	setcheckTargetPos(zaxiscom,Z_FLOOR+400)
+	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE-10)
+	setcheckTargetPos(zaxiscom,Z_FLOOR+500)
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
 
 def sweep_benki_rightside_floor():
 	#right side of benki
 	print('[main::sweepTheFloor1]')
 	eecom.setThetaPos(ANGLE_EE_CENTER)
-	# input("Waiting...")
 	setcheckTargetPos(xaxiscom,X_MIN)
-	# input("Waiting...")
 	setcheckTargetPos(yaxiscom,Y_MIN)
-	# input("Waiting...")
-	eecom.setVacuumState(True)
-	# input("Waiting...")
-	setcheckTargetPos(zaxiscom,Z_FLOOR)
-	# input("Waiting...")
-	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
-	# input("Waiting...")
-	eecom.setVacuumState(False)
-	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
-	# input("Waiting...")
-	setcheckTargetPos(yaxiscom,Y_MIN)
-	# input("Waiting...")
-	setcheckTargetPos(xaxiscom,X_BENKI_RIGHT_SIDE)
-	# input("Waiting...")
 	# eecom.setVacuumState(True)
 	setcheckTargetPos(zaxiscom,Z_FLOOR)
-	# input("Waiting...")
 	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
-	# input("Waiting...")
+	eecom.setVacuumState(False)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	setcheckTargetPos(zaxiscom,Z_FLOOR+100)
+	setcheckTargetPos(xaxiscom,X_BENKI_RIGHT_SIDE)
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	# eecom.setVacuumState(True)	
+	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
 	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
 
 def move_benki_right2left():
@@ -106,35 +172,24 @@ def move_benki_right2left():
 def sweep_benki_leftside_floor():
 	#left side of benki
 	print('[main::sweepTheFloor1]')
-	setcheckTargetPos(yaxiscom,Y_MIN)
-	# input("Waiting...")
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	eecom.setThetaPos(ANGLE_EE_CENTER)
 	setcheckTargetPos(xaxiscom,X_BENKI_LEFT_SIDE)
-	# input("Waiting...")
-	setcheckTargetPos(zaxiscom,Z_FLOOR)
-	# input("Waiting...")
-	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
-	# input("Waiting...")
-	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
-	# input("Waiting...")
 	setcheckTargetPos(yaxiscom,Y_MIN)
-	# input("Waiting...")
+	setcheckTargetPos(zaxiscom,Z_FLOOR)
+	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(yaxiscom,Y_MIN)
 	setcheckTargetPos(xaxiscom,X_MAX)
-	# input("Waiting...")
 	# eecom.setVacuumState(True)
 	setcheckTargetPos(zaxiscom,Z_FLOOR)
-	# input("Waiting...")
 	setcheckTargetPos(yaxiscom,Y_BENKI_SIDE)
-	# input("Waiting...")
 	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
 
-def move_benki_left2front():
-	print('[main::move_benki_left2front]')
-	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
-	setcheckTargetPos(yaxiscom,Y_MAX)
-	setcheckTargetPos(xaxiscom,X_MIN)
-
-def	sweep_benki_frontside_floor():
+# メインフロア清掃
+def sweep_benki_frontside_floor():
 	print('[main::sweep_benki_frontside_floor]')
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
 	eecom.setThetaPos(ANGLE_EE_LEFT)
 	setcheckTargetPos(xaxiscom,X_MIN)
 	target_Y=Y_MAX
@@ -151,8 +206,15 @@ def	sweep_benki_frontside_floor():
 	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
 	setcheckTargetPos(xaxiscom,X_MIN)
 	
-def	sweep_benki_frontside():
-	print('[main::sweep_benki_frontside]')
+# 初期位置に戻る
+def move_finish_pos():
+	print('[main::move_finish_pos]')
+	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
+	setcheckTargetPos(yaxiscom,Y_EVACUATION)
+	eecom.setThetaPos(ANGLE_EE_CENTER)
+	setcheckTargetPos(xaxiscom,X_MAX)
+	setcheckTargetPos(yaxiscom,Y_MIN)
+	eecom.setThetaPos(ANGLE_EE_LEFT)
 
 def getAllState():
 	print('[main::getAllState]')
@@ -165,43 +227,44 @@ def doFunc(i):
 def setcheckTargetPos(commander, pos):
 	if commander.setTargetPos(pos) == False:
 		commander.setTargetPos(pos)
+	time.sleep(1)
 	# input("Press enter to next")
 
 def main():
 	print('main')
-
-	# eecom.setThetaPos(2050)
-
-	# eecom.setVacuumState(True)
-	# time.sleep(2)
-	# eecom.setVacuumState(False)
-
 	eecom.setThetaPos(ANGLE_EE_CENTER)
 	zaxiscom.zeroAdjusted()	
 	xaxiscom.zeroAdjusted()
 	yaxiscom.zeroAdjusted()
-	
-
-	# setcheckTargetPos(xaxiscom, 300)
-	# setcheckTargetPos(yaxiscom, 300)
-	# zaxiscom.setTargetPos(-100)
-
-	# xaxiscom._setTargetPos(100)
-	# yaxiscom.setTargetPos(100)
-	# zaxiscom.setTargetPos(-100)
-
-	# zeroAdjusted()
-	# sweep_benki_top()
+	# 初期位置(便座左)に移動
+	move_init_pos()
 	input("Waiting...")
+	# # スタートコマンド待機
+	wait_start_command()
+	input("Waiting...")
+	# # 便器上清掃
+	sweep_benki_top()
+	input("Waiting...")
+	# 便座右側面清掃
 	sweep_benki_rightside_floor()
-	move_benki_right2left()
+	input("Waiting...")
+	# # エンドエフェクタ安全確保
+	sweep_laege_gomi()
+	input("Waiting...")
+	# 便座正面床清掃
+	sweep_benki_frontside_floor_first()
+	input("Waiting...")
+	# 便座前面清掃
+	sweep_benki_frontside()
+	input("Waiting...")
 	sweep_benki_leftside_floor()
-	move_benki_left2front()
+	input("Waiting...")
+	# メインフロア清掃
 	sweep_benki_frontside_floor()
-	# sweep_benki_frontside()
-	# zeroAdjusted()
-	
-
+	input("Waiting...")
+	# 初期位置に戻る
+	move_finish_pos()
+	# input("Waiting...")
 	# for i in scriptDF.index:
 	# 	doFunc(scriptDF.at[i, 'func'])
 

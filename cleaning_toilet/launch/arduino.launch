@@ -16,7 +16,7 @@
         name="arduino_z_node" 
         pkg="rosserial_python" 
         type="serial_node.py" 
-        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_55737313631351F0C032-if00" 
+        args="_port:= /dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_9563431363235150D080-if00" 
         output="screen" />
     <node ns="arduino_wall" 
         name="arduino_wall_node" 
