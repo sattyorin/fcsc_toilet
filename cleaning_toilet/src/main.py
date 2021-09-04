@@ -4,6 +4,7 @@ from x_axis import XAxisCommanderInterrupt
 from y_axis import YAxisCommanderInterrupt
 from z_axis import ZAxisCommanderInterrupt
 from ee import EndEfectorCommander
+from ee import BarCommander
 from interrupt import Interrupt
 import pandas as pd
 import multiprocessing as mp
@@ -16,6 +17,7 @@ rospy.init_node('main')
 #### constant ####
 theta_dynamixel_id = 1
 karcher_dynamixel_id = 2
+bar_dynamixel_id = 2
 # interrupt_csv_path = '../csv/interrupt.csv'
 interrupt_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/interrupt.csv'
 script_csv_path = '../csv/script.csv'
@@ -27,6 +29,7 @@ _script_csv_path = '../csv/_script.csv'
 
 #### instance ####
 eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
+barcom = BarCommander(bar_dynamixel_id)
 interrupt = Interrupt(interrupt_csv_path, eecom)
 xaxiscom = XAxisCommanderInterrupt(interrupt)
 yaxiscom = YAxisCommanderInterrupt(interrupt)
