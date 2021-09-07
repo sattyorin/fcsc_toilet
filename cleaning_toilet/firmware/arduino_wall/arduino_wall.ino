@@ -31,6 +31,16 @@ void publishSwichState()
 {
 	switch_state.data = digitalRead(SWITCH_PIN);
 	pub_switch_state.publish(&switch_state);
+	pixels.clear();
+	if (digitalRead(SWITCH_PIN))
+	{
+		for(int i=0;i<NUMPIXELS;i++)pixels.setPixelColor(i, pixels.Color(255, 0, 0));
+	}
+	else
+	{
+		for(int i=0;i<NUMPIXELS;i++)pixels.setPixelColor(i, pixels.Color(0, 255, 0));
+	}
+	pixels.show();
 }
 
 void setup()

@@ -112,6 +112,9 @@ class AxisCommanderInterrupt(AxisCommander):
 
 		if self.interrupt.go_home_flag == False and self.wait_flag == False:
 			#### stop servo ####
+			# self._setTargetPos(self.current_pos)
+			self.setPWM(0)
+			time.sleep(1)
 			self._setTargetPos(self.current_pos)
 			self.interrupt.setCurrentPos(self.axis, self.current_pos)
 

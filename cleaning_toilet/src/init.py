@@ -23,8 +23,7 @@ if __name__ == '__main__':
 	zaxiscom = ZAxisCommander()
 	#### constant ####
 	theta_dynamixel_id = 1
-	karcher_dynamixel_id = 2
-	eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
+	eecom = EndEfectorCommander(theta_dynamixel_id)
 	
 
 	time.sleep(3)

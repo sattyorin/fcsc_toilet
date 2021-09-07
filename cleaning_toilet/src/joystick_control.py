@@ -26,7 +26,7 @@ rospy.init_node('joystick_control')
 xaxiscom = XAxisCommander()
 yaxiscom = YAxisCommander()
 zaxiscom = ZAxisCommander()
-eecom = EndEfectorCommander(theta_dynamixel_id, karcher_dynamixel_id)
+eecom = EndEfectorCommander(theta_dynamixel_id)
 
 def writeCSV():
 

@@ -6,7 +6,7 @@ home_pos = 0
 hold_pos_pwm = 0
 zero_adjusted_pwm = -20
 min_pos = 0
-max_pos = 1280
+max_pos = 1320
 after_adjusted_pos = 30
 
 zero_csv_path = '~/catkin_ws/src/fcsc_toilet/cleaning_toilet/csv/zero.csv'

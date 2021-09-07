@@ -4,10 +4,11 @@ from pos import *
 
 
 class Interrupt:
-	def __init__(self, interrupt_csv_path, eecom):
+	def __init__(self, interrupt_csv_path, eecom, barcom):
 		print('[Interrupt::__init__]')
 		self.interrupt_csv_path = interrupt_csv_path
 		self.eecom = eecom
+		self.barcom = barcom
 		self.columns_len = 3
 		self.df = pd.DataFrame()
 		self.go_home_flag = False
@@ -36,6 +37,8 @@ class Interrupt:
 	def writeCSV(self):
 		print('[Interrupt::writeCSV]')
 		self.df.at[0, 'ee'] = self.eecom.current_theta
+		self.df.at[0, 'vacuum'] = self.eecom.vacuum_state
+		self.df.at[0, 'bar'] = self.barcom.current_theta
 		self.df.to_csv(self.interrupt_csv_path)
 		self.go_home_flag = True
 
@@ -70,6 +73,7 @@ class Interrupt:
 					if ret == False:
 						self.go_home_sequence = [
 							['z', Z_CUP],
+							['bar', BAR_HOME_POS],
 							['y', FRONT_PROHIBITION_Y_MAX],
 							['z', Z_MAX],
 							['ee', ANGLE_EE_CENTER],
@@ -80,6 +84,7 @@ class Interrupt:
 					else:
 						self.go_home_sequence = [
 							['z', int(self.df.at[0, 'z'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['y', int(self.df.at[0, 'y'])],
 							['z', Z_CUP],
 							['ee', int(self.df.at[0, 'ee'])],
@@ -91,6 +96,7 @@ class Interrupt:
 					if ret == False:
 						self.go_home_sequence = [
 							['y', FRONT_PROHIBITION_Y_MAX],
+							['bar', BAR_HOME_POS],
 							['z', Z_MAX],
 							['ee', ANGLE_EE_CENTER],
 							['x', X_MIN],
@@ -100,6 +106,7 @@ class Interrupt:
 					else:
 						self.go_home_sequence = [
 							['y', int(self.df.at[0, 'y'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['z', int(self.df.at[0, 'z'])],
 							['ee', int(self.df.at[0, 'ee'])],
 							['x', int(self.df.at[0, 'x'])],
@@ -110,6 +117,7 @@ class Interrupt:
 					if ret == False:
 						self.go_home_sequence = [
 							['z', Z_MAX],
+							['bar', BAR_HOME_POS],
 							['ee', ANGLE_EE_CENTER],
 							['x', X_MIN],
 							['y', Y_MIN],
@@ -118,6 +126,7 @@ class Interrupt:
 					else:
 						self.go_home_sequence = [
 							['z', int(self.df.at[0, 'z'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['ee', int(self.df.at[0, 'ee'])],
 							['x', int(self.df.at[0, 'x'])],
 							['y', int(self.df.at[0, 'y'])],
@@ -130,6 +139,7 @@ class Interrupt:
 				if ret == False:
 					self.go_home_sequence = [
 						['z', Z_MAX],
+						['bar', BAR_HOME_POS],
 						['ee', ANGLE_EE_CENTER],
 						['x', X_MIN],
 						['y', Y_MIN],
@@ -137,6 +147,7 @@ class Interrupt:
 				else:
 						self.go_home_sequence = [
 							['z', int(self.df.at[0, 'z'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['ee', int(self.df.at[0, 'ee'])],
 							['x', int(self.df.at[0, 'x'])],
 							['y', int(self.df.at[0, 'y'])],
@@ -153,6 +164,7 @@ class Interrupt:
 					if ret == False:
 						self.go_home_sequence = [
 							['z', Z_CUP],
+							['bar', BAR_HOME_POS],
 							['y', FRONT_PROHIBITION_Y_MAX],
 							['z', Z_MAX],
 							['ee', ANGLE_EE_CENTER],
@@ -163,6 +175,7 @@ class Interrupt:
 					else:
 						self.go_home_sequence = [
 							['z', int(self.df.at[0, 'z'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['y', int(self.df.at[0, 'y'])],
 							['z', Z_CUP],
 							['ee', int(self.df.at[0, 'ee'])],
@@ -174,6 +187,7 @@ class Interrupt:
 					if ret == False:
 						self.go_home_sequence = [
 							['y', FRONT_PROHIBITION_Y_MAX],
+							['bar', BAR_HOME_POS],
 							['z', Z_MAX],
 							['ee', ANGLE_EE_CENTER],
 							['x', X_MAX],
@@ -183,6 +197,7 @@ class Interrupt:
 					else:
 						self.go_home_sequence = [
 							['y', int(self.df.at[0, 'y'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['z', int(self.df.at[0, 'z'])],
 							['ee', int(self.df.at[0, 'ee'])],
 							['x', int(self.df.at[0, 'x'])],
@@ -193,6 +208,7 @@ class Interrupt:
 					if ret == False:
 						self.go_home_sequence = [
 							['z', Z_MAX],
+							['bar', BAR_HOME_POS],
 							['ee', ANGLE_EE_CENTER],
 							['x', X_MAX],
 							['y', Y_MIN],
@@ -201,6 +217,7 @@ class Interrupt:
 					else:
 						self.go_home_sequence = [
 							['z', int(self.df.at[0, 'z'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['ee', int(self.df.at[0, 'ee'])],
 							['x', int(self.df.at[0, 'x'])],
 							['y', int(self.df.at[0, 'y'])],
@@ -213,6 +230,7 @@ class Interrupt:
 				if ret == False:
 					self.go_home_sequence = [
 						['z', Z_MAX],
+						['bar', BAR_HOME_POS],
 						['ee', ANGLE_EE_CENTER],
 						['x', X_MAX],
 						['y', Y_MIN],
@@ -221,6 +239,7 @@ class Interrupt:
 				else:
 					self.go_home_sequence = [
 							['z', int(self.df.at[0, 'z'])],
+							['bar', int(self.df.at[0, 'bar'])],
 							['ee', int(self.df.at[0, 'ee'])],
 							['x', int(self.df.at[0, 'x'])],
 							['y', int(self.df.at[0, 'y'])],
@@ -251,6 +270,10 @@ class Interrupt:
 			self.current_pos = {}
 		elif self.go_home_sequence[0][0] == 'ee':
 			self.eecom.setThetaPos(self.go_home_sequence[0][1])
+			self.eecom.setVacuumState(False)
+			self.gotHomePos()
+		elif self.go_home_sequence[0][0] == 'bar':
+			self.barcom.setThetaPos(self.go_home_sequence[0][1])
 			self.gotHomePos()
 
 	
@@ -267,4 +290,8 @@ class Interrupt:
 			self.got_interruption_pos_flag = True
 		elif self.go_home_sequence[-1][0] == 'ee':
 			self.eecom.setThetaPos(int(self.go_home_sequence[-1][1]))
+			self.eecom.setVacuumState(self.df.at[0, 'vacuum'])
+			self.gotInterruptionPos()
+		elif self.go_home_sequence[-1][0] == 'bar':
+			self.barcom.setThetaPos(int(self.go_home_sequence[-1][1]))
 			self.gotInterruptionPos()

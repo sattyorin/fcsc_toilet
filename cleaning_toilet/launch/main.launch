@@ -13,7 +13,7 @@
 	/>
 	<!-- dynamixel_dalay -->
   <node pkg="timed_roslaunch" type="timed_roslaunch.sh"
-    args="5 cleaning_toilet dynamixel_ee.launch"
+    args="3 cleaning_toilet dynamixel_ee.launch"
    name="timed_roslaunch_ee" output="screen" />
      <node pkg="timed_roslaunch" type="timed_roslaunch.sh"
     args="10 cleaning_toilet dynamixel_bar.launch"
