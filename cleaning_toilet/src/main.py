@@ -67,6 +67,7 @@ def adjustZTheToiletSeat():
 # 初期位置(便座左)に移動
 def move_init_pos():
 	print('[main::move_init_pos]')
+	setcheckTargetPos(zaxiscom,Z_BENKI + 50)
 	eecom.setThetaPos(ANGLE_EE_LEFT)
 	time.sleep(2)
 	setcheckTargetPos(xaxiscom,X_MAX)
@@ -152,7 +153,7 @@ def sweep_benki_frontside_floor_second():
 	setcheckTargetPos(yaxiscom,Y_BENKI_FRONT_EE_SIDE_REVERSE)
 	eecom.setVacuumState(True)	
 	setcheckTargetPos(zaxiscom,Z_FLOOR)
-	setcheckTargetPos(xaxiscom,X_FRONT_FLOOR_MIN+80)
+	setcheckTargetPos(xaxiscom,X_FRONT_FLOOR_MIN)
 	eecom.setVacuumState(False)
 	setcheckTargetPos(zaxiscom,Z_FLOOR_MOVING)
 	

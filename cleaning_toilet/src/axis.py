@@ -185,8 +185,9 @@ class AxisCommanderInterrupt(AxisCommander):
 	def setTargetPos(self, pos):
 		print('[{}AxisCommanderInterrupt::setTargetPos] target pos: {}'.format(self.axis, pos))
 		self.checkPos(pos)
-		self.publishTopic(self.target_pos_pub, self.current_pos) #stop servo
+		self.setPWM(0)
 		self.publishTopic(self.control_mode_pub, 'servo')
+		self.publishTopic(self.target_pos_pub, self.current_pos) #stop servo
 
 		if not(pos-self.same_pos_tolerance < self.current_pos < pos+self.same_pos_tolerance):
 			self.publishTopic(self.target_pos_pub, pos)

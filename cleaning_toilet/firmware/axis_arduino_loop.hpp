@@ -9,6 +9,7 @@ void loop()
 	publishErrorFlag();
 	servo();
 	nh.spinOnce();
+	delay(18);
 }
 
 #endif

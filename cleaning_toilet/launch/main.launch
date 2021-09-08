@@ -1,16 +1,16 @@
 <launch>
 	<include file="$(find cleaning_toilet)/launch/arduino.launch">
 	</include>
-	<node name="joy_pad"
+	<!-- <node name="joy_pad"
 		pkg="joy"
 		type="joy_node"
-		args="_dev:=/dev/input/js1"
+		args="_dev:=/dev/input/js1" -->
 	/>
-	<node name="joystick_control"	
+	<!-- <node name="joystick_control"	
 		pkg="cleaning_toilet"
 		type="joystick_control.py"
 		output="screen"
-	/>
+	/> -->
 	<!-- dynamixel_dalay -->
   <node pkg="timed_roslaunch" type="timed_roslaunch.sh"
     args="3 cleaning_toilet dynamixel_ee.launch"

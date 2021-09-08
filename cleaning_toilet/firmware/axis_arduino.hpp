@@ -33,6 +33,7 @@ std_msgs::Bool limit_state;
 std_msgs::Int32 current_pos;
 std_msgs::Bool finish_flag;
 std_msgs::Bool error_flag;
+int pre_target_pwm = 0;
 
 //// define callback func ////
 void callbackTargetPos(const std_msgs::Int32 &pos);
@@ -89,13 +90,27 @@ void setPWM(int target_pwm)
 	{
 		if (target_pwm < 0)
 		{
+			if (pre_target_pwm == -1)
+			{
+				digitalWrite(IN_A_PIN, LOW);
+				digitalWrite(IN_B_PIN, LOW);
+				delay(10);
+			}
 			digitalWrite(IN_A_PIN, LOW);
 			digitalWrite(IN_B_PIN, HIGH);
+			pre_target_pwm = 1;
 		}
 		else
 		{
+			if (pre_target_pwm == 1)
+			{
+				digitalWrite(IN_A_PIN, LOW);
+				digitalWrite(IN_B_PIN, LOW);
+				delay(10);
+			}
 			digitalWrite(IN_B_PIN, LOW);
 			digitalWrite(IN_A_PIN, HIGH);
+			pre_target_pwm = -1;
 		}
 
 		if (target_pwm < 0) target_pwm = -target_pwm;
@@ -104,7 +119,6 @@ void setPWM(int target_pwm)
 		analogWrite(PWM_PIN, target_pwm);
 	}
 
-	if (millis() - last_pwm_time > 500) // if time is short, it doesn't return even after overshooting
 	{
 		pre_enc = current_enc;
 		last_pwm_time = millis();
