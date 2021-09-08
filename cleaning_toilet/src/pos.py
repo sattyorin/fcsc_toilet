@@ -4,7 +4,7 @@ X_BENKI_RIGHT_SIDE=150# ok
 X_BENKI_LEFT_SIDE=780 #ok
 Y_BENKI_FRONT_EE_SIDE=910
 Z_BENKI = -275#ok
-Z_FLOOR = -840
+Z_FLOOR = -820
 #### Enviroment Value####
 # 固定値
 X_MIN = 110 #ok

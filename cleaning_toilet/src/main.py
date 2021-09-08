@@ -303,7 +303,7 @@ def setcheckTargetPos(commander, pos):
 	if commander.setTargetPos(pos) == False:
 		# commander.setTargetPos(pos)
 		setcheckTargetPos(commander, pos)
-	# time.sleep(1)
+	time.sleep(0.8)
 	# input("Press enter to next")
 
 def main():
